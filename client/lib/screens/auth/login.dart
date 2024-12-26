@@ -1,7 +1,8 @@
+import 'package:client/components/inputs/button.dart';
+import 'package:client/components/inputs/input.dart';
+import 'package:client/screens/auth/password_reset.dart';
 import 'package:client/screens/auth/register.dart';
 import 'package:flutter/material.dart';
-import 'package:client/components/button.dart';
-import 'package:client/components/input.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -155,7 +156,11 @@ class _LoginPageState extends State<LoginPage> {
               // Forgot Password
               TextButton(
                 onPressed: () {
-                  // Navigate to Forgot Password Page
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordScreen(),
+                    ),
+                  );
                 },
                 child: Text(
                   "Forgot Password?",
