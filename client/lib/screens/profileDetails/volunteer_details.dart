@@ -4,7 +4,8 @@ import 'package:client/components/inputs/input.dart';
 import 'package:flutter/material.dart';
 
 class VolunteerDetails extends StatefulWidget {
-  const VolunteerDetails({super.key});
+  const VolunteerDetails({super.key, this.email});
+  final String? email;
 
   @override
   State<VolunteerDetails> createState() => _VolunteerDetailsState();
@@ -45,6 +46,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                     hint: 'Enter your full name',
                     child: ReusableInputField(
                       labelText: "Name",
+                      hintText: "Enter Name",
                       controller: _nameController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -61,6 +63,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                     hint: 'Enter your phone number using only digits',
                     child: ReusableInputField(
                       labelText: "Phone Number",
+                      hintText: "Enter Phone Number",
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -73,8 +76,21 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
 
+                  const SizedBox(height: 24),
+                  Semantics(
+                    label: 'Phone number input field',
+                    hint: 'Enter your phone number using only digits',
+                    child: ReusableInputField(
+                      isEnabled: false,
+                      readOnly: true,
+                      labelText: widget.email.toString(),
+                      hintText: "Registered Email Address",
+                      controller: _phoneController,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Semantics(
                     label: 'Academic year selection',
                     hint: 'Select your academic year',

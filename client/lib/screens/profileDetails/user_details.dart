@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
 class Userdetails extends StatefulWidget {
-  const Userdetails({super.key});
+  const Userdetails({super.key,this.email});
+  final String?email;
 
   @override
   State<Userdetails> createState() => _UserdetailsState();
@@ -55,6 +56,7 @@ class _UserdetailsState extends State<Userdetails> {
                     hint: 'Enter your full name',
                     child: ReusableInputField(
                       labelText: "Name",
+                      hintText: "Enter Name",
                       controller: _nameController,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -71,6 +73,7 @@ class _UserdetailsState extends State<Userdetails> {
                     hint: 'Enter your phone number using only digits',
                     child: ReusableInputField(
                       labelText: "Phone Number",
+                      hintText: "Enter Phone Number",
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
@@ -83,6 +86,20 @@ class _UserdetailsState extends State<Userdetails> {
                       },
                     ),
                   ),
+                  const SizedBox(height: 24),
+
+                  Semantics( 
+                    label: 'Email field',
+                    hint: 'Registered Email id',
+                    child: ReusableInputField(
+                      labelText: widget.email.toString(),
+                      hintText: "Registered Email",
+                      keyboardType: TextInputType.emailAddress,
+                      isEnabled: false,
+                      readOnly: true,
+                    ),
+                  ),
+
                   const SizedBox(height: 24),
 
                   Semantics(
