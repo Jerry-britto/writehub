@@ -134,4 +134,34 @@ class Auth {
       return null;
     }
   }
+
+  Future<String> passwordReset(String email) async {
+  try {
+    String trimmedEmail = email.trim().toLowerCase();
+
+    if (trimmedEmail.isEmpty) {
+      return 'Please enter a valid email address.';
+    }
+
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: trimmedEmail);
+
+    // If successful, return this message
+    return 'Password reset link sent! Check your email';
+
+  } on FirebaseAuthException catch (e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Invalid email address format';
+      case 'too-many-requests':
+        return 'Too many requests. Please try again later.';
+      default:
+        debugPrint("Firebase Auth Error: ${e.code}");
+        return 'Failed to send password reset link: ${e.message}';
+    }
+  } catch (e) {
+    // Catch any unexpected errors
+    debugPrint("Password reset error: $e");
+    return 'An unexpected error occurred';
+  }
+}
 }

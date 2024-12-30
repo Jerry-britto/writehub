@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:client/screens/auth/role_selection.dart';
 import 'package:client/components/inputs/button.dart';
@@ -29,22 +28,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  checkForLoggedInuser () async{
-      User?user = await Auth().getCurrentUser();
-    if (user!=null) {
-      debugPrint("logged in user: ${user.email}");
-      await Auth().logout();
-    }else{
-      debugPrint("No user logged in");
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    checkForLoggedInuser();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,13 +39,13 @@ class _LoginPageState extends State<LoginPage> {
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Stack(
-            children: [
-              Column(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Text(
@@ -165,17 +148,25 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+            ),
+          ),
 
-              // Show loading spinner
-              if (_isLoading)
-                Positioned.fill(
-                  child: Container(
-                    child: Center(child: CircularProgressIndicator()),
+          // Show loading spinner
+          if (_isLoading)
+            Positioned.fill(
+              child: Container(
+                child: const Center(
+                  child: SizedBox(
+                    height: 100.0,
+                    width: 100.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 8.0,
+                    ),
                   ),
                 ),
-            ],
-          ),
-        ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -284,11 +275,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       children: [
         Expanded(child: Divider(thickness: 1, color: Colors.grey[400])),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text("OR", style: TextStyle(color: Colors.grey[600])),
-        ),
-        Expanded(child: Divider(thickness: 1, color: Colors.grey[400])),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 8.0)),
       ],
     );
   }
