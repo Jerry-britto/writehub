@@ -23,9 +23,9 @@ class ReusableButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        foregroundColor: textColor, backgroundColor: buttonColor, // Text color
+        foregroundColor: textColor, backgroundColor: buttonColor, 
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(borderRadius), // Rounded corners
+          borderRadius: BorderRadius.circular(borderRadius), 
         ),
         padding: EdgeInsets.all(padding), // Button padding
       ),

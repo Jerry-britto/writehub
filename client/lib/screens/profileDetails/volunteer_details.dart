@@ -200,44 +200,68 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                               ),
                             ),
                             ExcludeSemantics(
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await Uploadfile()
-                                      .requestStoragePermissions();
-                                  try {
-                                    final profilePhoto =
-                                        await Uploadfile().selectProfilePhoto();
-                                    if (profilePhoto != null) {
-                                      debugPrint(
-                                        "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
-                                      );
-                                      setState(() {
-                                        result = profilePhoto;
-                                      });
-                                    } else {
-                                      debugPrint("No profile photo selected.");
-                                    }
-                                  } catch (e) {
-                                    debugPrint(
-                                      "Error selecting profile photo: $e",
-                                    );
-                                    SnackBarUtil.showSnackBar(
-                                      context,
-                                      "An error occurred while selecting the profile photo.",
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0,
-                                  ),
-                                  minimumSize: const Size(double.infinity, 48),
-                                ),
-                                child: const Text(
-                                  "Upload Profile Picture",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
+                              child:
+                                  result.isEmpty
+                                      ? ElevatedButton(
+                                        onPressed: () async {
+                                          await Uploadfile()
+                                              .requestStoragePermissions();
+                                          try {
+                                            final profilePhoto =
+                                                await Uploadfile()
+                                                    .selectProfilePhoto();
+                                            if (profilePhoto != null) {
+                                              debugPrint(
+                                                "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
+                                              );
+                                              setState(() {
+                                                result = profilePhoto;
+                                              });
+                                            } else {
+                                              debugPrint(
+                                                "No profile photo selected.",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                              "Error selecting profile photo: $e",
+                                            );
+                                            SnackBarUtil.showSnackBar(
+                                              context,
+                                              "An error occurred while selecting the profile photo.",
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                          ),
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            48,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Upload Profile Picture",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      )
+                                      : Flexible(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text("${result["name"]} "),
+                                            ReusableButton(
+                                              buttonText: "Remove photo",
+                                              onPressed: () {
+                                                setState(() {
+                                                  result.clear();
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                             ),
                           ],
                         ),

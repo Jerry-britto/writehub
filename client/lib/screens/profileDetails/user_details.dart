@@ -22,7 +22,9 @@ class _UserdetailsState extends State<Userdetails> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
   Map<String, String> result = {};
+  List<Map<String, dynamic>> certificates = [];
 
   String? selectedCourse = 'SELECT';
   String? selectedAcademicYear = 'SELECT';
@@ -249,19 +251,147 @@ class _UserdetailsState extends State<Userdetails> {
                               ),
                             ),
                             ExcludeSemantics(
-                              child: ElevatedButton(
-                                onPressed: () async {},
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0,
-                                  ),
-                                  minimumSize: const Size(double.infinity, 48),
-                                ),
-                                child: const Text(
-                                  "Upload Files",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
+                              child:
+                                  certificates.isEmpty
+                                      ? ElevatedButton(
+                                        onPressed: () async {
+                                          await Uploadfile()
+                                              .requestStoragePermissions();
+                                          try {
+                                            setState(() {
+                                              _isLoading = true;
+                                            });
+                                            final certificatesResult =
+                                                await Uploadfile()
+                                                    .selectMultipleFiles();
+                                            setState(() {
+                                              certificates = certificatesResult;
+                                            });
+                                            debugPrint(
+                                              "Certificates length: ${certificates.length}",
+                                            );
+                                            for (var element in certificates) {
+                                              debugPrint(
+                                                "Certificate Name - ${element["name"]}",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                              "Error selecting certificates: $e",
+                                            );
+                                            SnackBarUtil.showSnackBar(
+                                              context,
+                                              "An error occurred while selecting certificates. Please try again or contact the team.",
+                                            );
+                                          } finally {
+                                            setState(() {
+                                              _isLoading = false;
+                                            });
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                          ),
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            48,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Upload Files",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      )
+                                      : Column(
+                                        children: [
+                                          // Display files
+                                          ...certificates.map(
+                                            (certificate) => Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 8.0,
+                                                  ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      certificate["name"],
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  ElevatedButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        certificates.remove(
+                                                          certificate,
+                                                        );
+                                                      });
+                                                    },
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                          ),
+                                                    ),
+                                                    child: const Text('Remove'),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          // Add more files button
+                                          const SizedBox(height: 16),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              await Uploadfile()
+                                                  .requestStoragePermissions();
+                                              try {
+                                                setState(() {
+                                                  _isLoading = true;
+                                                });
+                                                final newCertificates =
+                                                    await Uploadfile()
+                                                        .selectMultipleFiles();
+                                                setState(() {
+                                                  certificates.addAll(
+                                                    newCertificates,
+                                                  );
+                                                });
+                                              } catch (e) {
+                                                debugPrint(
+                                                  "Error selecting additional certificates: $e",
+                                                );
+                                                SnackBarUtil.showSnackBar(
+                                                  context,
+                                                  "An error occurred while selecting certificates. Please try again.",
+                                                );
+                                              } finally {
+                                                setState(() {
+                                                  _isLoading = false;
+                                                });
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 12.0,
+                                                  ),
+                                              minimumSize: const Size(
+                                                double.infinity,
+                                                40,
+                                              ),
+                                            ),
+                                            child: const Text("Add More Files"),
+                                          ),
+                                        ],
+                                      ),
                             ),
                           ],
                         ),
@@ -283,44 +413,69 @@ class _UserdetailsState extends State<Userdetails> {
                               ),
                             ),
                             ExcludeSemantics(
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await Uploadfile()
-                                      .requestStoragePermissions();
-                                  try {
-                                    final profilePhoto =
-                                        await Uploadfile().selectProfilePhoto();
-                                    if (profilePhoto != null) {
-                                      debugPrint(
-                                        "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
-                                      );
-                                      setState(() {
-                                        result = profilePhoto;
-                                      });
-                                    } else {
-                                      debugPrint("No profile photo selected.");
-                                    }
-                                  } catch (e) {
-                                    debugPrint(
-                                      "Error selecting profile photo: $e",
-                                    );
-                                    SnackBarUtil.showSnackBar(
-                                      context,
-                                      "An error occurred while selecting the profile photo.",
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16.0,
-                                  ),
-                                  minimumSize: const Size(double.infinity, 48),
-                                ),
-                                child: const Text(
-                                  "Upload Profile Picture",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
+                              child:
+                                  result.isEmpty
+                                      ? ElevatedButton(
+                                        onPressed: () async {
+                                          await Uploadfile()
+                                              .requestStoragePermissions();
+                                          try {
+                                            final profilePhoto =
+                                                await Uploadfile()
+                                                    .selectProfilePhoto();
+                                            if (profilePhoto != null) {
+                                              debugPrint(
+                                                "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
+                                              );
+                                              setState(() {
+                                                result = profilePhoto;
+                                              });
+                                            } else {
+                                              debugPrint(
+                                                "No profile photo selected.",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                              "Error selecting profile photo: $e",
+                                            );
+                                            SnackBarUtil.showSnackBar(
+                                              context,
+                                              "An error occurred while selecting the profile photo.",
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                          ),
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            48,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Upload Profile Picture",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      )
+                                      : Flexible(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text("${result["name"]} "),
+                                            ReusableButton(
+                                              buttonText: "Remove photo",
+                                              onPressed: () {
+                                                setState(() {
+                                                  result.clear();
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                             ),
                           ],
                         ),
@@ -368,6 +523,15 @@ class _UserdetailsState extends State<Userdetails> {
         selectedCourse != 'SELECT' &&
         selectedDisabilities.isNotEmpty) {
       String profilePhoto = "";
+      if (certificates.isEmpty) {
+        DialogUtil.showAlertDialog(
+          context,
+          "Missing certificates",
+          "Kindly upload all the relevant certificates as a proof of your disability",
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
       if (result.isNotEmpty) {
         try {
           profilePhoto = await Profile().uploadProfilePhoto(result, "swd");
@@ -375,6 +539,7 @@ class _UserdetailsState extends State<Userdetails> {
           debugPrint("could not upload profile picture to supabase due to $e");
         }
       }
+
       await Profile()
           .saveUserDetails(
             name: _nameController.text,
@@ -384,6 +549,7 @@ class _UserdetailsState extends State<Userdetails> {
             course: selectedCourse!,
             disabilities: selectedDisabilities,
             profilePhoto: profilePhoto,
+            certificates: certificates,
           )
           .then((_) {
             Navigator.of(

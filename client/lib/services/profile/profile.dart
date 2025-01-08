@@ -77,6 +77,8 @@ class Profile {
     required String course,
     required List<String> disabilities,
     profilePhoto = "",
+    List<Map<String, dynamic>> certificates =
+        const [], // Changed type to List<Map>
   }) async {
     try {
       // Step 1: Update user details
@@ -86,7 +88,7 @@ class Profile {
               .update({
                 "name": name,
                 "phone_number": phoneNumber,
-                "profile_photo": profilePhoto != ""?profilePhoto:null,
+                "profile_photo": profilePhoto != "" ? profilePhoto : null,
               })
               .eq('email', email.toLowerCase())
               .select();
@@ -99,6 +101,10 @@ class Profile {
       // Get user ID
       final userId = userResponse[0]['user_id'];
       debugPrint("user id $userId");
+
+      if (certificates.isNotEmpty) {
+        await uploadCertificates(userId, certificates);
+      }
 
       // Step 2: Get disability IDs from the disabilities table
       final disabilitiesResponse = await supabase
@@ -215,6 +221,49 @@ class Profile {
     } catch (e) {
       // Handle errors
       debugPrint("Error uploading file: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> uploadCertificates(
+    userId,
+    List<Map<String, dynamic>> certificates,
+  ) async {
+    try {
+      for (var certificate in certificates) {
+        // Get file path and name
+        String filePath = certificate['path']!;
+        String fileName = certificate['name']!;
+
+        // Create a File object
+        final file = File(filePath);
+
+        // Upload to Supabase storage
+        final storage = supabase.storage.from('certificates');
+
+        // Upload file with user_id in path for better organization
+        final String storagePath =
+            '$userId/${DateTime.now().millisecondsSinceEpoch}_$fileName';
+        await storage.upload(storagePath, file);
+
+        // Get public URL
+        final String publicUrl = storage.getPublicUrl(storagePath);
+
+        // Store certificate details in the certificates table
+        await supabase.from('certificates').insert({
+          'user_id': userId,
+          'certificate_name': fileName,
+          'certificate_url': publicUrl,
+        });
+
+        // Clean up local file
+        if (await file.exists()) {
+          await file.delete();
+        }
+      }
+      debugPrint('All certificates uploaded successfully');
+    } catch (e) {
+      debugPrint('Error uploading certificates: $e');
       rethrow;
     }
   }

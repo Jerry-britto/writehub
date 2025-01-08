@@ -119,6 +119,7 @@ class _SignupPageState extends State<SignupPage> {
           
                       // Confirm Password Input Field
                       ReusableInputField(
+                        isPassword: true,
                         labelText: 'Confirm Password',
                         controller: confirmPasswordController,
                         prefixIcon: Icons.lock,

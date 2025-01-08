@@ -29,8 +29,7 @@ class Uploadfile {
   Future<List<Map<String, String>>> selectMultipleFiles() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.any, // Allow any file type
-        allowMultiple: true, // Enable multiple file selection
+        allowMultiple: true,
       );
 
       if (result != null && result.files.isNotEmpty) {
