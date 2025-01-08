@@ -1,7 +1,7 @@
 import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/input.dart';
-import 'package:client/features/auth/auth.dart';
-import 'package:client/features/profile/profile.dart';
+import 'package:client/services/auth/auth.dart';
+import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:client/screens/auth/role_selection.dart';
 import 'package:client/screens/home/scribe_home.dart';

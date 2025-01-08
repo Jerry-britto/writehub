@@ -1,9 +1,11 @@
 import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/dropdown.dart';
 import 'package:client/components/inputs/input.dart';
-import 'package:client/features/profile/profile.dart';
+import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/home/scribe_home.dart';
 import 'package:client/utils/alertbox_util.dart';
+import 'package:client/utils/snackbar_util.dart';
+import 'package:client/utils/uploadfile.dart';
 import 'package:flutter/material.dart';
 
 class VolunteerDetails extends StatefulWidget {
@@ -23,6 +25,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
   String? selectedAcademicYear = 'SELECT';
   bool isSubmissionAttempted = false;
   bool _isLoading = false;
+  Map<String, String> result = {};
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +182,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
 
                       // Profile Picture input (Optional)
@@ -198,8 +201,31 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                             ),
                             ExcludeSemantics(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Placeholder logic for file upload
+                                onPressed: () async {
+                                  await Uploadfile()
+                                      .requestStoragePermissions();
+                                  try {
+                                    final profilePhoto =
+                                        await Uploadfile().selectProfilePhoto();
+                                    if (profilePhoto != null) {
+                                      debugPrint(
+                                        "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
+                                      );
+                                      setState(() {
+                                        result = profilePhoto;
+                                      });
+                                    } else {
+                                      debugPrint("No profile photo selected.");
+                                    }
+                                  } catch (e) {
+                                    debugPrint(
+                                      "Error selecting profile photo: $e",
+                                    );
+                                    SnackBarUtil.showSnackBar(
+                                      context,
+                                      "An error occurred while selecting the profile photo.",
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
@@ -264,14 +290,23 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
       debugPrint("Academic Year: $selectedAcademicYear");
       debugPrint("Phone: ${_phoneController.text}");
       debugPrint("Course: $selectedCourse");
+      String profilePhoto = "";
+      if (result.isNotEmpty) {
+        try {
+          profilePhoto = await Profile().uploadProfilePhoto(result, "scribes");
+        } catch (e) {
+          debugPrint("could not upload profile picture to supabase due to $e");
+        }
+      }
 
       await Profile()
           .saveVolunteerDetails(
-            _nameController.text,
+            _nameController.text.trim(),
             widget.email.toString(),
-            _phoneController.text,
+            _phoneController.text.trim(),
             selectedCourse.toString(),
             selectedAcademicYear.toString(),
+            profilePhoto: profilePhoto,
           )
           .then((_) {
             Navigator.of(
@@ -286,7 +321,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
             );
           });
     }
-     setState(() {
+    setState(() {
       isSubmissionAttempted = false;
       _isLoading = false;
     });

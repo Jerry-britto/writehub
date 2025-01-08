@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:client/utils/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -75,13 +76,18 @@ class Profile {
     required String academicYear,
     required String course,
     required List<String> disabilities,
+    profilePhoto = "",
   }) async {
     try {
       // Step 1: Update user details
       final userResponse =
           await supabase
               .from("users")
-              .update({"name": name, "phone_number": phoneNumber})
+              .update({
+                "name": name,
+                "phone_number": phoneNumber,
+                "profile_photo": profilePhoto != ""?profilePhoto:null,
+              })
               .eq('email', email.toLowerCase())
               .select();
 
@@ -137,13 +143,20 @@ class Profile {
     email,
     phoneNumber,
     course,
-    academicYear,
-  ) async {
+    academicYear, {
+    profilePhoto = "",
+  }) async {
+    debugPrint("Profile Photo: $profilePhoto");
     try {
       final userDetails =
           await supabase
               .from("users")
-              .update({"name": name, "phone_number": phoneNumber})
+              .update({
+                "name": name,
+                "phone_number": phoneNumber,
+                "profile_photo":
+                    profilePhoto != "" ? profilePhoto.toString() : null,
+              })
               .eq("email", email)
               .select();
       debugPrint("User details - $userDetails");
@@ -161,6 +174,47 @@ class Profile {
       debugPrint("succesfully saved scribe details");
     } catch (e) {
       debugPrint("Error saving volunteer details: $e");
+      rethrow;
+    }
+  }
+
+  Future<String> uploadProfilePhoto(
+    Map<String, String> profilePhoto,
+    String folder, // scribe or swd
+  ) async {
+    try {
+      // Get the file path and name
+      String filePath = profilePhoto['path']!;
+      String fileName = profilePhoto['name']!;
+
+      // Create a reference to the correct folder in Supabase storage
+      final storage = supabase.storage.from('profile-pictures');
+
+      // Create a File object from the path
+      final file = File(filePath);
+
+      final uploadResponse = await storage.upload(
+        '$folder/$fileName', // Path in the folder
+        file,
+      );
+
+      final String publicUrl = storage.getPublicUrl('$folder/$fileName');
+
+      debugPrint("File uploaded successfully: $uploadResponse");
+      debugPrint("Public URL: $publicUrl");
+
+      bool isFileExists = await file.exists();
+      if (isFileExists) {
+        await file.delete();
+        debugPrint("File deleted from cache after upload.");
+      } else {
+        debugPrint("File does not exist at the cached path.");
+      }
+
+      return publicUrl.toString();
+    } catch (e) {
+      // Handle errors
+      debugPrint("Error uploading file: $e");
       rethrow;
     }
   }

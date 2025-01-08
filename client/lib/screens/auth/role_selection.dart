@@ -1,6 +1,6 @@
 import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/dropdown.dart';
-import 'package:client/features/profile/profile.dart';
+import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/profileDetails/user_details.dart';
 import 'package:client/screens/profileDetails/volunteer_details.dart';
 import 'package:client/utils/alertbox_util.dart';

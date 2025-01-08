@@ -2,9 +2,11 @@ import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/dropdown.dart';
 import 'package:client/components/inputs/input.dart';
 import 'package:client/components/inputs/multidropdown.dart';
-import 'package:client/features/profile/profile.dart';
+import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/home/swd_home.dart';
 import 'package:client/utils/alertbox_util.dart';
+import 'package:client/utils/snackbar_util.dart';
+import 'package:client/utils/uploadfile.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
@@ -20,6 +22,7 @@ class _UserdetailsState extends State<Userdetails> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  Map<String, String> result = {};
 
   String? selectedCourse = 'SELECT';
   String? selectedAcademicYear = 'SELECT';
@@ -247,9 +250,7 @@ class _UserdetailsState extends State<Userdetails> {
                             ),
                             ExcludeSemantics(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Placeholder logic for file upload
-                                },
+                                onPressed: () async {},
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 16.0,
@@ -283,8 +284,31 @@ class _UserdetailsState extends State<Userdetails> {
                             ),
                             ExcludeSemantics(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Placeholder logic for file upload
+                                onPressed: () async {
+                                  await Uploadfile()
+                                      .requestStoragePermissions();
+                                  try {
+                                    final profilePhoto =
+                                        await Uploadfile().selectProfilePhoto();
+                                    if (profilePhoto != null) {
+                                      debugPrint(
+                                        "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
+                                      );
+                                      setState(() {
+                                        result = profilePhoto;
+                                      });
+                                    } else {
+                                      debugPrint("No profile photo selected.");
+                                    }
+                                  } catch (e) {
+                                    debugPrint(
+                                      "Error selecting profile photo: $e",
+                                    );
+                                    SnackBarUtil.showSnackBar(
+                                      context,
+                                      "An error occurred while selecting the profile photo.",
+                                    );
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
@@ -343,6 +367,14 @@ class _UserdetailsState extends State<Userdetails> {
         selectedAcademicYear != 'SELECT' &&
         selectedCourse != 'SELECT' &&
         selectedDisabilities.isNotEmpty) {
+      String profilePhoto = "";
+      if (result.isNotEmpty) {
+        try {
+          profilePhoto = await Profile().uploadProfilePhoto(result, "swd");
+        } catch (e) {
+          debugPrint("could not upload profile picture to supabase due to $e");
+        }
+      }
       await Profile()
           .saveUserDetails(
             name: _nameController.text,
@@ -351,6 +383,7 @@ class _UserdetailsState extends State<Userdetails> {
             academicYear: selectedAcademicYear!,
             course: selectedCourse!,
             disabilities: selectedDisabilities,
+            profilePhoto: profilePhoto,
           )
           .then((_) {
             Navigator.of(
@@ -365,7 +398,7 @@ class _UserdetailsState extends State<Userdetails> {
             );
           });
     }
-      setState(() => isSubmissionAttempted = false);
-      setState(() => _isLoading = false);
+    setState(() => isSubmissionAttempted = false);
+    setState(() => _isLoading = false);
   }
 }

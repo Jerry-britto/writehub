@@ -1,4 +1,4 @@
-import 'package:client/features/auth/auth.dart';
+import 'package:client/services/auth/auth.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:client/utils/alertbox_util.dart';
 import 'package:flutter/material.dart';

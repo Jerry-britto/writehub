@@ -1,5 +1,5 @@
 import 'package:client/components/inputs/button.dart';
-import 'package:client/features/auth/auth.dart';
+import 'package:client/services/auth/auth.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 
