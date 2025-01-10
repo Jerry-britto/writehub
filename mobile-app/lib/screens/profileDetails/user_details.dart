@@ -30,7 +30,10 @@ class _UserdetailsState extends State<Userdetails> {
   String? selectedAcademicYear = 'SELECT';
   List<String> selectedDisabilities = [];
   bool isSubmissionAttempted = false;
-  bool _isLoading = false;
+  bool _isLoading = false, _isAgreed = false;
+  bool _academicYearError = false,
+      _courseError = false,
+      _isErrorDisabilites = false;
 
   final List<DropdownItem<String>> disabilityOptions = [
     DropdownItem(label: 'Vision Impairment', value: 'Vision Impairment'),
@@ -125,6 +128,8 @@ class _UserdetailsState extends State<Userdetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomDropdown(
+                              isError: _academicYearError,
+                              errorMessage: "Kindly provide your academic year",
                               label: "Select Academic Year",
                               options: ['SELECT', 'FY', 'SY', 'TY'],
                               value: selectedAcademicYear,
@@ -134,21 +139,6 @@ class _UserdetailsState extends State<Userdetails> {
                                 });
                               },
                             ),
-                            if (isSubmissionAttempted &&
-                                selectedAcademicYear == 'SELECT')
-                              Semantics(
-                                label: 'Error: Academic year required',
-                                child: const Padding(
-                                  padding: EdgeInsets.only(left: 4.0, top: 4.0),
-                                  child: Text(
-                                    "Please select an academic year",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
@@ -162,6 +152,9 @@ class _UserdetailsState extends State<Userdetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomDropdown(
+                              isError: _courseError,
+                              errorMessage: "Kindly Select your course",
+
                               label: "Select Course",
                               options: [
                                 'SELECT',
@@ -180,21 +173,6 @@ class _UserdetailsState extends State<Userdetails> {
                                 });
                               },
                             ),
-                            if (isSubmissionAttempted &&
-                                selectedCourse == 'SELECT')
-                              Semantics(
-                                label: 'Error: Course selection required',
-                                child: const Padding(
-                                  padding: EdgeInsets.only(left: 4.0, top: 4.0),
-                                  child: Text(
-                                    "Please select a course",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
@@ -210,6 +188,10 @@ class _UserdetailsState extends State<Userdetails> {
                             CustomMultiDropdown(
                               label: "Select Disabilities",
                               items: disabilityOptions,
+                              placeHolder: "Select atleast one disability",
+                              isError: _isErrorDisabilites,
+                              errorMessage:
+                                  "Kindly select atleast one of the disability",
                               onSelectionChange: (List<String> values) {
                                 setState(() {
                                   selectedDisabilities = values;
@@ -481,7 +463,46 @@ class _UserdetailsState extends State<Userdetails> {
                         ),
                       ),
                       const SizedBox(height: 32),
-
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isAgreed = !_isAgreed; // Toggle the checkbox value
+                          });
+                          debugPrint("tapped on guidelines");
+                        },
+                        child: Semantics(
+                          label:
+                              "Guidelines and declaration for SWD registration",
+                          value: _isAgreed ? "Agreed" : "Not agreed",
+                          hint: "Tap to agree or disagree with the declaration",
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Checkbox(
+                                  value: _isAgreed,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _isAgreed = value ?? false;
+                                    });
+                                  },
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      'I hereby declare that all the information provided above is true to the best of my knowledge and belief.',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
                       // Submit button
                       Semantics(
                         label: 'Submit form button',
@@ -518,11 +539,43 @@ class _UserdetailsState extends State<Userdetails> {
   void _submitForm() async {
     setState(() => isSubmissionAttempted = true);
     setState(() => _isLoading = true);
-    if (_formKey.currentState!.validate() &&
-        selectedAcademicYear != 'SELECT' &&
-        selectedCourse != 'SELECT' &&
-        selectedDisabilities.isNotEmpty) {
+
+    if ((selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT' &&
+            selectedDisabilities.isEmpty) ||
+        (selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') ||
+        (selectedAcademicYear == 'SELECT' && selectedDisabilities.isEmpty) ||
+        (selectedCourse == 'SELECT' && selectedDisabilities.isEmpty) ||
+        (selectedAcademicYear == 'SELECT') ||
+        (selectedCourse == 'SELECT') ||
+        (selectedDisabilities.isEmpty)) {
+      setState(() {
+        isSubmissionAttempted = false;
+        _isLoading = false;
+
+        _academicYearError = (selectedAcademicYear == 'SELECT');
+        _courseError = (selectedCourse == 'SELECT');
+        _isErrorDisabilites = selectedDisabilities.isEmpty;
+      });
+      return;
+    }
+
+    debugPrint("Login initiated");
+
+    if (_formKey.currentState!.validate()) {
       String profilePhoto = "";
+
+      if (isSubmissionAttempted == true && _isAgreed == false) {
+        DialogUtil.showAlertDialog(
+          context,
+          "Guideliness of WriteHub",
+          "Kindly follow our guidliness inorder to proceed further",
+        );
+        setState(() => isSubmissionAttempted = false);
+        setState(() => _isLoading = false);
+        return;
+      }
+
       if (certificates.isEmpty) {
         DialogUtil.showAlertDialog(
           context,

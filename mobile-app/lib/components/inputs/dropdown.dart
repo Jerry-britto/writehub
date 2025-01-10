@@ -5,6 +5,8 @@ class CustomDropdown extends StatelessWidget {
   final List<String> options;
   final String? value;
   final Function(String?) onChanged;
+  final bool isError;
+  final String? errorMessage;
 
   const CustomDropdown({
     super.key,
@@ -12,6 +14,8 @@ class CustomDropdown extends StatelessWidget {
     required this.options,
     required this.value,
     required this.onChanged,
+    this.isError = false,
+    this.errorMessage,
   });
 
   @override
@@ -26,8 +30,12 @@ class CustomDropdown extends StatelessWidget {
           DropdownButtonFormField<String>(
             value: value,
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              errorText:
+                  isError
+                      ? errorMessage
+                      : null,
             ),
             items:
                 options.map((String option) {

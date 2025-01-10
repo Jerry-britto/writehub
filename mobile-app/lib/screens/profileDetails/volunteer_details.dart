@@ -27,6 +27,8 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
   bool _isLoading = false;
   Map<String, String> result = {};
 
+  bool _isAcademicYearError = false, _isCourseError = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,6 +113,8 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                             CustomDropdown(
                               label: "Select Academic Year",
                               options: ['SELECT', 'FY', 'SY', 'TY'],
+                              isError: _isAcademicYearError,
+                              errorMessage: "Kindly provide your academic year",
                               value: selectedAcademicYear,
                               onChanged: (String? value) {
                                 setState(() {
@@ -147,6 +151,8 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                           children: [
                             CustomDropdown(
                               label: "Select Course",
+                              isError: _isCourseError,
+                              errorMessage: "Kindly provide your course",
                               options: [
                                 'SELECT',
                                 "BMS",
@@ -248,7 +254,8 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                       )
                                       : Flexible(
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
                                           children: [
                                             Text("${result["name"]} "),
                                             ReusableButton(
@@ -307,9 +314,29 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
       _isLoading = true;
     });
 
-    if (_formKey.currentState!.validate() &&
-        selectedAcademicYear != 'SELECT' &&
-        selectedCourse != 'SELECT') {
+    if ((selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') ||
+        (selectedAcademicYear == 'SELECT') ||
+        (selectedCourse == 'SELECT')) {
+      setState(() {
+        isSubmissionAttempted = false;
+        _isLoading = false;
+
+        // Set error flags based on combinations
+        if (selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') {
+          _isAcademicYearError = true;
+          _isCourseError = true;
+        } else if (selectedAcademicYear == 'SELECT') {
+          _isAcademicYearError = true;
+          _isCourseError = false;
+        } else if (selectedCourse == 'SELECT') {
+          _isAcademicYearError = false;
+          _isCourseError = true;
+        }
+      });
+      return;
+    }
+
+    if (_formKey.currentState!.validate() ) {
       debugPrint("Name: ${_nameController.text}");
       debugPrint("Academic Year: $selectedAcademicYear");
       debugPrint("Phone: ${_phoneController.text}");
