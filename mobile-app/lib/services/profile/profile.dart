@@ -75,8 +75,10 @@ class Profile {
     required String email,
     required String academicYear,
     required String course,
+    required String collegeName,
     required List<String> disabilities,
     profilePhoto = "",
+    collegeProof = "",
     List<Map<String, dynamic>> certificates =
         const [], // Changed type to List<Map>
   }) async {
@@ -89,6 +91,8 @@ class Profile {
                 "name": name,
                 "phone_number": phoneNumber,
                 "profile_photo": profilePhoto != "" ? profilePhoto : null,
+                "collegeName": collegeName,
+                "college_proof":collegeProof != "" ? collegeProof : null
               })
               .eq('email', email.toLowerCase())
               .select();
@@ -149,8 +153,10 @@ class Profile {
     email,
     phoneNumber,
     course,
+    college,
     academicYear, {
     profilePhoto = "",
+    collegeProof = "",
   }) async {
     debugPrint("Profile Photo: $profilePhoto");
     try {
@@ -160,8 +166,11 @@ class Profile {
               .update({
                 "name": name,
                 "phone_number": phoneNumber,
+                "collegeName": college,
                 "profile_photo":
                     profilePhoto != "" ? profilePhoto.toString() : null,
+                "college_proof":
+                    collegeProof != "" ? collegeProof.toString() : null,
               })
               .eq("email", email)
               .select();
@@ -265,6 +274,48 @@ class Profile {
     } catch (e) {
       debugPrint('Error uploading certificates: $e');
       rethrow;
+    }
+  }
+
+  Future<String> uploadCollegeIdentity(
+    Map<String, String> collegeIdentity,
+  ) async {
+    try {
+      // Validate input
+      if (collegeIdentity['path'] == null || collegeIdentity['name'] == null) {
+        throw Exception('File path or name is missing');
+      }
+
+      String filePath = collegeIdentity['path']!;
+      String fileName = collegeIdentity['name']!;
+      String uniqueFileName =
+          '${DateTime.now().millisecondsSinceEpoch}_$fileName';
+
+      // Initialize Supabase storage
+      final storage = supabase.storage.from('college-identity');
+      final file = File(filePath);
+
+      // Upload file
+      final uploadResponse = await storage.upload(uniqueFileName, file);
+
+      // Generate public URL
+      final String publicUrl = storage.getPublicUrl(uniqueFileName);
+
+      debugPrint("File uploaded successfully: $uploadResponse");
+      debugPrint("Public URL: $publicUrl");
+
+      // Delete local file after upload
+      if (await file.exists()) {
+        await file.delete();
+        debugPrint("File deleted from cache after upload.");
+      } else {
+        debugPrint("File does not exist at the cached path.");
+      }
+
+      return publicUrl.toString();
+    } catch (e) {
+      debugPrint("Error uploading file: ${e.toString()}");
+      rethrow; // Rethrow to handle upstream if necessary
     }
   }
 }

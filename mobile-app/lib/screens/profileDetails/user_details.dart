@@ -23,17 +23,20 @@ class _UserdetailsState extends State<Userdetails> {
   final TextEditingController _phoneController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  Map<String, String> result = {};
+  Map<String, String> result = {}, collegeIdentity = {};
   List<Map<String, dynamic>> certificates = [];
 
   String? selectedCourse = 'SELECT';
   String? selectedAcademicYear = 'SELECT';
+  String selectedCollege = 'SELECT';
   List<String> selectedDisabilities = [];
   bool isSubmissionAttempted = false;
+
   bool _isLoading = false, _isAgreed = false;
   bool _academicYearError = false,
       _courseError = false,
-      _isErrorDisabilites = false;
+      _isErrorDisabilites = false,
+      _isErrorCollege = false;
 
   final List<DropdownItem<String>> disabilityOptions = [
     DropdownItem(label: 'Vision Impairment', value: 'Vision Impairment'),
@@ -120,6 +123,37 @@ class _UserdetailsState extends State<Userdetails> {
 
                       const SizedBox(height: 24),
 
+                      // college
+                      Semantics(
+                        label: 'College selection',
+                        hint: 'Select your college',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomDropdown(
+                              isError: _isErrorCollege,
+                              errorMessage: "Kindly choose your college",
+                              label: "Select College",
+                              options: [
+                                'SELECT',
+                                'St. Xavier\'s College',
+                                'St. Andrew\'s College',
+                                'SIES COLLEGE',
+                                'St. Wilson College',
+                              ],
+                              value: selectedCollege,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  selectedCollege = value!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
                       // academic year
                       Semantics(
                         label: 'Academic year selection',
@@ -154,7 +188,6 @@ class _UserdetailsState extends State<Userdetails> {
                             CustomDropdown(
                               isError: _courseError,
                               errorMessage: "Kindly Select your course",
-
                               label: "Select Course",
                               options: [
                                 'SELECT',
@@ -176,6 +209,91 @@ class _UserdetailsState extends State<Userdetails> {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 24),
+
+                      // college proof
+                      Semantics(
+                        label: 'College Identification',
+                        hint: 'Upload your College Fee Receipt/Identity Card',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                "Upload your College Fee Receipt/Identity Card",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            ExcludeSemantics(
+                              child:
+                                  collegeIdentity.isEmpty
+                                      ? ElevatedButton(
+                                        onPressed: () async {
+                                          await Uploadfile()
+                                              .requestStoragePermissions();
+                                          try {
+                                            final identity =
+                                                await Uploadfile()
+                                                    .selectSingleFile();
+                                            if (identity != null) {
+                                              debugPrint(
+                                                "Selected College identify: ${identity['name']} at ${identity['path']}",
+                                              );
+                                              setState(() {
+                                                collegeIdentity = identity;
+                                              });
+                                            } else {
+                                              debugPrint(
+                                                "No college identity proof selected",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                              "Error selecting college identity: $e",
+                                            );
+                                            SnackBarUtil.showSnackBar(
+                                              context,
+                                              "An error occurred while selecting the college identity.",
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                          ),
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            48,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Upload Proof",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      )
+                                      : Flexible(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text("${collegeIdentity["name"]} "),
+                                            ReusableButton(
+                                              buttonText: "Remove selection",
+                                              onPressed: () {
+                                                setState(() {
+                                                  collegeIdentity.clear();
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                       const SizedBox(height: 24),
 
                       // disabilites
@@ -404,7 +522,7 @@ class _UserdetailsState extends State<Userdetails> {
                                           try {
                                             final profilePhoto =
                                                 await Uploadfile()
-                                                    .selectProfilePhoto();
+                                                    .selectSingleFile();
                                             if (profilePhoto != null) {
                                               debugPrint(
                                                 "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
@@ -537,15 +655,34 @@ class _UserdetailsState extends State<Userdetails> {
   }
 
   void _submitForm() async {
-    setState(() => isSubmissionAttempted = true);
-    setState(() => _isLoading = true);
+    setState(() {
+      isSubmissionAttempted = true;
+      _isLoading = true;
+    });
 
-    if ((selectedAcademicYear == 'SELECT' &&
+    if ((selectedCollege == 'SELECT' &&
+            selectedAcademicYear == 'SELECT' &&
             selectedCourse == 'SELECT' &&
             selectedDisabilities.isEmpty) ||
+        (selectedCollege == 'SELECT' &&
+            selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT') ||
+        (selectedCollege == 'SELECT' &&
+            selectedAcademicYear == 'SELECT' &&
+            selectedDisabilities.isEmpty) ||
+        (selectedCollege == 'SELECT' &&
+            selectedCourse == 'SELECT' &&
+            selectedDisabilities.isEmpty) ||
+        (selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT' &&
+            selectedDisabilities.isEmpty) ||
+        (selectedCollege == 'SELECT' && selectedAcademicYear == 'SELECT') ||
+        (selectedCollege == 'SELECT' && selectedCourse == 'SELECT') ||
+        (selectedCollege == 'SELECT' && selectedDisabilities.isEmpty) ||
         (selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') ||
         (selectedAcademicYear == 'SELECT' && selectedDisabilities.isEmpty) ||
         (selectedCourse == 'SELECT' && selectedDisabilities.isEmpty) ||
+        (selectedCollege == 'SELECT') ||
         (selectedAcademicYear == 'SELECT') ||
         (selectedCourse == 'SELECT') ||
         (selectedDisabilities.isEmpty)) {
@@ -553,6 +690,8 @@ class _UserdetailsState extends State<Userdetails> {
         isSubmissionAttempted = false;
         _isLoading = false;
 
+        // Set error flags based on the state conditions
+        _isErrorCollege = (selectedCollege == 'SELECT');
         _academicYearError = (selectedAcademicYear == 'SELECT');
         _courseError = (selectedCourse == 'SELECT');
         _isErrorDisabilites = selectedDisabilities.isEmpty;
@@ -563,7 +702,29 @@ class _UserdetailsState extends State<Userdetails> {
     debugPrint("Login initiated");
 
     if (_formKey.currentState!.validate()) {
-      String profilePhoto = "";
+      String profilePhoto = "", collegeProof = "";
+
+      if (collegeIdentity.isEmpty) {
+        DialogUtil.showAlertDialog(
+          context,
+          "Missing Document",
+          "Kindly upload your college fee receipt or identiy card",
+        );
+        setState(() {
+          isSubmissionAttempted = false;
+          _isLoading = false;
+        });
+        return;
+      } else {
+        // upload to supabase
+        debugPrint("College proof: $collegeIdentity");
+        try {
+          collegeProof = await Profile().uploadCollegeIdentity(collegeIdentity);
+          debugPrint("Uploaded college proof $collegeProof");
+        } catch (e) {
+          debugPrint("Could not upload college identity");
+        }
+      }
 
       if (isSubmissionAttempted == true && _isAgreed == false) {
         DialogUtil.showAlertDialog(
@@ -571,8 +732,11 @@ class _UserdetailsState extends State<Userdetails> {
           "Guideliness of WriteHub",
           "Kindly follow our guidliness inorder to proceed further",
         );
-        setState(() => isSubmissionAttempted = false);
-        setState(() => _isLoading = false);
+
+        setState(() {
+          isSubmissionAttempted = false;
+          _isLoading = false;
+        });
         return;
       }
 
@@ -582,9 +746,13 @@ class _UserdetailsState extends State<Userdetails> {
           "Missing certificates",
           "Kindly upload all the relevant certificates as a proof of your disability",
         );
-        setState(() => _isLoading = false);
+        setState(() {
+          isSubmissionAttempted = false;
+          _isLoading = false;
+        });
         return;
       }
+
       if (result.isNotEmpty) {
         try {
           profilePhoto = await Profile().uploadProfilePhoto(result, "swd");
@@ -603,6 +771,8 @@ class _UserdetailsState extends State<Userdetails> {
             disabilities: selectedDisabilities,
             profilePhoto: profilePhoto,
             certificates: certificates,
+            collegeName: selectedCollege,
+            collegeProof: collegeProof,
           )
           .then((_) {
             Navigator.of(
@@ -617,7 +787,10 @@ class _UserdetailsState extends State<Userdetails> {
             );
           });
     }
-    setState(() => isSubmissionAttempted = false);
-    setState(() => _isLoading = false);
+
+    setState(() {
+      isSubmissionAttempted = false;
+      _isLoading = false;
+    });
   }
 }

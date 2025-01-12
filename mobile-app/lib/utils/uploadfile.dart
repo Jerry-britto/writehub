@@ -5,7 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 class Uploadfile {
   /// Allows selecting only one profile photo (image file).
   /// Returns a map containing the file's path and name, or null if no file is selected.
-  Future<Map<String, String>?> selectProfilePhoto() async {
+  Future<Map<String, String>?> selectSingleFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: false, // Only one file allowed

@@ -22,10 +22,10 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
   final _formKey = GlobalKey<FormState>();
 
   String? selectedCourse = 'SELECT';
-  String? selectedAcademicYear = 'SELECT';
+  String? selectedAcademicYear = 'SELECT', selectedCollege = "SELECT";
   bool isSubmissionAttempted = false;
-  bool _isLoading = false;
-  Map<String, String> result = {};
+  bool _isLoading = false, _isErrorCollege = false;
+  Map<String, String> result = {}, collegeIdentity = {};
 
   bool _isAcademicYearError = false, _isCourseError = false;
 
@@ -52,6 +52,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // name
                       Semantics(
                         label: 'Name input field',
                         hint: 'Enter your full name',
@@ -90,11 +91,10 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                         ),
                       ),
 
-                      // email
                       const SizedBox(height: 24),
+                      // email
                       Semantics(
-                        label: 'Phone number input field',
-                        hint: 'Enter your phone number using only digits',
+                        label: 'Email input field',
                         child: ReusableInputField(
                           isEnabled: false,
                           readOnly: true,
@@ -104,6 +104,37 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // college
+                      Semantics(
+                        label: 'College selection',
+                        hint: 'Select your college',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomDropdown(
+                              isError: _isErrorCollege,
+                              errorMessage: "Kindly choose your college",
+                              label: "Select College",
+                              options: [
+                                'SELECT',
+                                'St. Xavier\'s College',
+                                'St. Andrew\'s College',
+                                'SIES COLLEGE',
+                                'St. Wilson College',
+                              ],
+                              value: selectedCollege,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  selectedCollege = value!;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // academic year
                       Semantics(
                         label: 'Academic year selection',
                         hint: 'Select your academic year',
@@ -122,21 +153,6 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                 });
                               },
                             ),
-                            if (isSubmissionAttempted &&
-                                selectedAcademicYear == 'SELECT')
-                              Semantics(
-                                label: 'Error: Academic year required',
-                                child: const Padding(
-                                  padding: EdgeInsets.only(left: 4.0, top: 4.0),
-                                  child: Text(
-                                    "Please select an academic year",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
@@ -170,25 +186,94 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                 });
                               },
                             ),
-                            if (isSubmissionAttempted &&
-                                selectedCourse == 'SELECT')
-                              Semantics(
-                                label: 'Error: Course selection required',
-                                child: const Padding(
-                                  padding: EdgeInsets.only(left: 4.0, top: 4.0),
-                                  child: Text(
-                                    "Please select a course",
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
                       ),
 
+                      const SizedBox(height: 24),
+
+                      // college fee receipt / id card
+                      Semantics(
+                        label: 'College Identification',
+                        hint: 'Upload your College Fee Receipt/Identity Card',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                "Upload your College Fee Receipt/Identity Card",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            ExcludeSemantics(
+                              child:
+                                  collegeIdentity.isEmpty
+                                      ? ElevatedButton(
+                                        onPressed: () async {
+                                          await Uploadfile()
+                                              .requestStoragePermissions();
+                                          try {
+                                            final identity =
+                                                await Uploadfile()
+                                                    .selectSingleFile();
+                                            if (identity != null) {
+                                              debugPrint(
+                                                "Selected College identify: ${identity['name']} at ${identity['path']}",
+                                              );
+                                              setState(() {
+                                                collegeIdentity = identity;
+                                              });
+                                            } else {
+                                              debugPrint(
+                                                "No college identity proof selected",
+                                              );
+                                            }
+                                          } catch (e) {
+                                            debugPrint(
+                                              "Error selecting college identity: $e",
+                                            );
+                                            SnackBarUtil.showSnackBar(
+                                              context,
+                                              "An error occurred while selecting the college identity.",
+                                            );
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 16.0,
+                                          ),
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            48,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Upload Proof",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      )
+                                      : Flexible(
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text("${collegeIdentity["name"]} "),
+                                            ReusableButton(
+                                              buttonText: "Remove selection",
+                                              onPressed: () {
+                                                setState(() {
+                                                  collegeIdentity.clear();
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
                       // Profile Picture input (Optional)
@@ -215,7 +300,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                           try {
                                             final profilePhoto =
                                                 await Uploadfile()
-                                                    .selectProfilePhoto();
+                                                    .selectSingleFile();
                                             if (profilePhoto != null) {
                                               debugPrint(
                                                 "Selected Profile Photo: ${profilePhoto['name']} at ${profilePhoto['path']}",
@@ -312,36 +397,97 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
     setState(() {
       isSubmissionAttempted = true;
       _isLoading = true;
+      _isErrorCollege = _isAcademicYearError = _isCourseError = false;
     });
 
-    if ((selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') ||
+    if ((selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT' &&
+            selectedCollege == 'SELECT') ||
+        (selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') ||
+        (selectedAcademicYear == 'SELECT' && selectedCollege == 'SELECT') ||
+        (selectedCourse == 'SELECT' && selectedCollege == 'SELECT') ||
         (selectedAcademicYear == 'SELECT') ||
-        (selectedCourse == 'SELECT')) {
+        (selectedCourse == 'SELECT') ||
+        (selectedCollege == 'SELECT')) {
       setState(() {
         isSubmissionAttempted = false;
         _isLoading = false;
 
+        // Reset all error flags
+        _isAcademicYearError = false;
+        _isCourseError = false;
+        _isErrorCollege = false;
+
         // Set error flags based on combinations
-        if (selectedAcademicYear == 'SELECT' && selectedCourse == 'SELECT') {
+        if (selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT' &&
+            selectedCollege == 'SELECT') {
           _isAcademicYearError = true;
           _isCourseError = true;
+          _isErrorCollege = true;
+        } else if (selectedAcademicYear == 'SELECT' &&
+            selectedCourse == 'SELECT') {
+          _isAcademicYearError = true;
+          _isCourseError = true;
+          _isErrorCollege = false;
+        } else if (selectedAcademicYear == 'SELECT' &&
+            selectedCollege == 'SELECT') {
+          _isAcademicYearError = true;
+          _isCourseError = false;
+          _isErrorCollege = true;
+        } else if (selectedCourse == 'SELECT' && selectedCollege == 'SELECT') {
+          _isAcademicYearError = false;
+          _isCourseError = true;
+          _isErrorCollege = true;
         } else if (selectedAcademicYear == 'SELECT') {
           _isAcademicYearError = true;
           _isCourseError = false;
+          _isErrorCollege = false;
         } else if (selectedCourse == 'SELECT') {
           _isAcademicYearError = false;
           _isCourseError = true;
+          _isErrorCollege = false;
+        } else if (selectedCollege == 'SELECT') {
+          _isAcademicYearError = false;
+          _isCourseError = false;
+          _isErrorCollege = true;
         }
       });
       return;
     }
 
-    if (_formKey.currentState!.validate() ) {
+    if (_formKey.currentState!.validate()) {
       debugPrint("Name: ${_nameController.text}");
       debugPrint("Academic Year: $selectedAcademicYear");
       debugPrint("Phone: ${_phoneController.text}");
       debugPrint("Course: $selectedCourse");
-      String profilePhoto = "";
+      debugPrint("College: $selectedCollege");
+      debugPrint("Profile photo: $result");
+      debugPrint("College proof: $collegeIdentity");
+      String profilePhoto = "", collegeProof = "";
+
+      if (collegeIdentity.isEmpty) {
+        DialogUtil.showAlertDialog(
+          context,
+          "Missing Document",
+          "Kindly upload your college fee receipt or identiy card",
+        );
+        setState(() {
+          isSubmissionAttempted = false;
+          _isLoading = false;
+        });
+        return;
+      } else {
+        // upload to supabase
+        debugPrint("College proof: $collegeIdentity");
+        try {
+          collegeProof = await Profile().uploadCollegeIdentity(collegeIdentity);
+          debugPrint("Uploaded college proof $collegeProof");
+        } catch (e) {
+          debugPrint("Could not upload college identity");
+        }
+      }
+
       if (result.isNotEmpty) {
         try {
           profilePhoto = await Profile().uploadProfilePhoto(result, "scribes");
@@ -349,15 +495,17 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
           debugPrint("could not upload profile picture to supabase due to $e");
         }
       }
-
+      debugPrint("Login initiated");
       await Profile()
           .saveVolunteerDetails(
             _nameController.text.trim(),
             widget.email.toString(),
             _phoneController.text.trim(),
             selectedCourse.toString(),
+            selectedCollege,
             selectedAcademicYear.toString(),
             profilePhoto: profilePhoto,
+            collegeProof: collegeProof,
           )
           .then((_) {
             Navigator.of(
