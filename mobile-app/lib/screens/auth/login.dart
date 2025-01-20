@@ -6,8 +6,8 @@ import 'package:client/services/auth/auth.dart';
 import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/auth/password_reset.dart';
 import 'package:client/screens/auth/register.dart';
-import 'package:client/screens/home/scribe_home.dart';
-import 'package:client/screens/home/swd_home.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
+import 'package:client/screens/home/swd/swd_home.dart';
 import 'package:client/screens/profileDetails/user_details.dart';
 import 'package:client/screens/profileDetails/volunteer_details.dart';
 import 'package:client/utils/alertbox_util.dart';
@@ -37,8 +37,9 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(fontSize: 22, color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF1A237E),
       ),
+      backgroundColor: Color(0xFFBBDEFB),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -104,7 +105,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 24),
 
                   // Login Button
-                  ReusableButton(buttonText: "Login", onPressed: _handleLogin),
+                  ReusableButton(
+                    buttonText: "Login",
+                    onPressed: _handleLogin,
+                    buttonColor: Color(0xFF1A237E),
+                  ),
                   const SizedBox(height: 16),
 
                   // OR Divider
@@ -120,6 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(fontSize: 16),
                     ),
                     style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: Colors.grey[400]!),
                       shape: RoundedRectangleBorder(
@@ -159,9 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: SizedBox(
                     height: 100.0,
                     width: 100.0,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 8.0,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 8.0),
                   ),
                 ),
               ),

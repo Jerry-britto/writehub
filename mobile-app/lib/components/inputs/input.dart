@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReusableInputField extends StatelessWidget {
-  final String labelText;
+  final String? labelText;
   final String? hintText;
   final TextEditingController? controller;
   final bool isPassword;
@@ -9,13 +9,13 @@ class ReusableInputField extends StatelessWidget {
   final IconData? prefixIcon;
   final IconData? suffixIcon;
   final VoidCallback? onSuffixTap;
-  final bool readOnly;
-  final bool isEnabled;
+  final dynamic onTap;
+  final bool readOnly, isEnabled;
   final String? Function(String?)? validator;
 
   const ReusableInputField({
     super.key,
-    required this.labelText,
+    this.labelText = "",
     this.controller,
     this.hintText,
     this.isPassword = false,
@@ -26,6 +26,7 @@ class ReusableInputField extends StatelessWidget {
     this.validator,
     this.readOnly = false,
     this.isEnabled = true,
+    this.onTap,
   });
 
   @override
@@ -36,11 +37,12 @@ class ReusableInputField extends StatelessWidget {
         if (hintText != null) ...[
           Text(
             hintText!,
-            style: const TextStyle(fontWeight: FontWeight.bold)
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 5),
         ],
         TextFormField(
+          onTap: onTap,
           controller: controller,
           obscureText: isPassword,
           readOnly: readOnly,
@@ -48,16 +50,14 @@ class ReusableInputField extends StatelessWidget {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             labelText: labelText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-            suffixIcon: suffixIcon != null
-                ? IconButton(
-                    onPressed: onSuffixTap,
-                    icon: Icon(suffixIcon),
-                  )
-                : null,
+            suffixIcon:
+                suffixIcon != null
+                    ? IconButton(onPressed: onSuffixTap, icon: Icon(suffixIcon))
+                    : null,
           ),
           validator: validator,
         ),

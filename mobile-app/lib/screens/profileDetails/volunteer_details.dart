@@ -2,7 +2,7 @@ import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/dropdown.dart';
 import 'package:client/components/inputs/input.dart';
 import 'package:client/services/profile/profile.dart';
-import 'package:client/screens/home/scribe_home.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
 import 'package:client/utils/alertbox_util.dart';
 import 'package:client/utils/snackbar_util.dart';
 import 'package:client/utils/uploadfile.dart';
@@ -38,8 +38,9 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
           style: TextStyle(fontSize: 22, color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF1A237E),
       ),
+      backgroundColor: Color(0xFFBBDEFB),
       body: Semantics(
         label: 'Volunteer Details Form',
         child: Padding(
@@ -366,6 +367,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                         hint: 'Double tap to submit the form',
                         child: ReusableButton(
                           buttonText: "SUBMIT DETAILS",
+                          buttonColor: Color(0xFF1A237E),
                           onPressed: _submitDetails,
                         ),
                       ),

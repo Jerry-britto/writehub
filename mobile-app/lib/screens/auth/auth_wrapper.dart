@@ -1,8 +1,8 @@
 import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:client/screens/auth/role_selection.dart';
-import 'package:client/screens/home/scribe_home.dart';
-import 'package:client/screens/home/swd_home.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
+import 'package:client/screens/home/swd/swd_home.dart';
 import 'package:client/screens/profileDetails/user_details.dart';
 import 'package:client/screens/profileDetails/volunteer_details.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -4,8 +4,8 @@ import 'package:client/services/auth/auth.dart';
 import 'package:client/services/profile/profile.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:client/screens/auth/role_selection.dart';
-import 'package:client/screens/home/scribe_home.dart';
-import 'package:client/screens/home/swd_home.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
+import 'package:client/screens/home/swd/swd_home.dart';
 import 'package:client/screens/profileDetails/user_details.dart';
 import 'package:client/screens/profileDetails/volunteer_details.dart';
 import 'package:client/utils/snackbar_util.dart';
@@ -39,8 +39,9 @@ class _SignupPageState extends State<SignupPage> {
           style: TextStyle(fontSize: 22, color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color(0xFF1A237E),
       ),
+      backgroundColor: Color(0xFFBBDEFB),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -138,6 +139,7 @@ class _SignupPageState extends State<SignupPage> {
                       ReusableButton(
                         buttonText: "Sign Up",
                         onPressed: _handleSignup,
+                        buttonColor: Color(0xFF1A237E),
                       ),
           
                       const SizedBox(height: 16),
@@ -171,6 +173,7 @@ class _SignupPageState extends State<SignupPage> {
                           style: TextStyle(fontSize: 16),
                         ),
                         style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(vertical: 14),
                           side: BorderSide(color: Colors.grey[400]!),
                           shape: RoundedRectangleBorder(

@@ -7,15 +7,17 @@ class ReusableButton extends StatelessWidget {
   final Color textColor;
   final double borderRadius;
   final double padding;
+  final FontWeight weight;
 
   // Constructor to accept custom values for the button
   const ReusableButton({super.key, 
     required this.buttonText,
     required this.onPressed,
-    this.buttonColor = Colors.blue, // Default button color
-    this.textColor = Colors.white, // Default text color
-    this.borderRadius = 8.0, // Default border radius
-    this.padding = 16.0, // Default padding
+    this.buttonColor = Colors.blue, 
+    this.textColor = Colors.white, 
+    this.borderRadius = 8.0, 
+    this.padding = 16.0, 
+    this.weight = FontWeight.normal
   });
 
   @override
@@ -31,7 +33,7 @@ class ReusableButton extends StatelessWidget {
       ),
       child: Text(
         buttonText,
-        style: TextStyle(fontSize: 16),
+        style: TextStyle(fontSize: 20,fontWeight: weight),
       ),
     );
   }
