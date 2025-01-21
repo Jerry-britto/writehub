@@ -92,7 +92,7 @@ class Profile {
                 "phone_number": phoneNumber,
                 "profile_photo": profilePhoto != "" ? profilePhoto : null,
                 "collegeName": collegeName,
-                "college_proof":collegeProof != "" ? collegeProof : null
+                "college_proof": collegeProof != "" ? collegeProof : null,
               })
               .eq('email', email.toLowerCase())
               .select();
@@ -317,5 +317,38 @@ class Profile {
       debugPrint("Error uploading file: ${e.toString()}");
       rethrow; // Rethrow to handle upstream if necessary
     }
+  }
+
+  Future<void> updateDetails(id, field, value) async {
+    try {
+      await supabase.from("users").update({field: value}).eq("user_id", id);
+    } catch (e) {
+      debugPrint("could not update user data due to $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteOldImageFromSupabase(role,String oldImageUrl) async {
+    if (oldImageUrl.isNotEmpty && oldImageUrl != "https://images.pexels.com/photos/7366257/pexels-photo-7366257.jpeg?auto=compress&cs=tinysrgb&w=600") {
+      try {
+        // Extract the image file path from the URL (Assuming it's stored in Supabase with a known path)
+        String filePath = extractFilePathFromUrl(oldImageUrl);
+
+        // Call Supabase Storage API to delete the old image
+        await supabase.storage.from('profile-pictures').remove(["$role/$filePath"]);
+
+        debugPrint("Old image deleted successfully from Supabase");
+      } catch (e) {
+        debugPrint("Failed to delete old image: $e");
+      }
+    }
+  }
+
+   String extractFilePathFromUrl(String imageUrl) {
+    // Extract file path from the Supabase image URL
+    // Example: https://your-supabase-url/storage/v1/object/public/your_bucket_name/images/old_image.jpg
+    Uri uri = Uri.parse(imageUrl);
+    debugPrint(uri.pathSegments.last);
+    return uri.pathSegments.last;  // Assuming the last segment is the file name
   }
 }
