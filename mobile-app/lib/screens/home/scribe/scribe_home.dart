@@ -1,5 +1,5 @@
 import 'package:client/screens/home/scribe/home.dart';
-import 'package:client/screens/home/scribe/notifications.dart';
+import 'package:client/screens/home/notifications.dart';
 import 'package:client/screens/home/scribe/profile.dart';
 import 'package:flutter/material.dart';
 

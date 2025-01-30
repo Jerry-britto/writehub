@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:client/utils/snackbar_util.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -328,14 +329,18 @@ class Profile {
     }
   }
 
-  Future<void> deleteOldImageFromSupabase(role,String oldImageUrl) async {
-    if (oldImageUrl.isNotEmpty && oldImageUrl != "https://images.pexels.com/photos/7366257/pexels-photo-7366257.jpeg?auto=compress&cs=tinysrgb&w=600") {
+  Future<void> deleteOldImageFromSupabase(role, String oldImageUrl) async {
+    if (oldImageUrl.isNotEmpty &&
+        oldImageUrl !=
+            "https://images.pexels.com/photos/7366257/pexels-photo-7366257.jpeg?auto=compress&cs=tinysrgb&w=600") {
       try {
         // Extract the image file path from the URL (Assuming it's stored in Supabase with a known path)
         String filePath = extractFilePathFromUrl(oldImageUrl);
 
         // Call Supabase Storage API to delete the old image
-        await supabase.storage.from('profile-pictures').remove(["$role/$filePath"]);
+        await supabase.storage.from('profile-pictures').remove([
+          "$role/$filePath",
+        ]);
 
         debugPrint("Old image deleted successfully from Supabase");
       } catch (e) {
@@ -344,11 +349,24 @@ class Profile {
     }
   }
 
-   String extractFilePathFromUrl(String imageUrl) {
-    // Extract file path from the Supabase image URL
-    // Example: https://your-supabase-url/storage/v1/object/public/your_bucket_name/images/old_image.jpg
+  String extractFilePathFromUrl(String imageUrl) {
     Uri uri = Uri.parse(imageUrl);
     debugPrint(uri.pathSegments.last);
-    return uri.pathSegments.last;  // Assuming the last segment is the file name
+    return uri.pathSegments.last;
+  }
+
+  saveFcmToken(email) async {
+    try {
+      final fCMToken = await FirebaseMessaging.instance.getToken();
+
+      await supabase
+          .from("users")
+          .update({"fcm_token": fCMToken})
+          .eq("email", email);
+
+      debugPrint("saved user's token");
+    } catch (e) {
+      debugPrint("Could not save FCM token due to $e");
+    }
   }
 }

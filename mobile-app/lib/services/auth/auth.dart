@@ -1,3 +1,4 @@
+import 'package:client/services/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -42,6 +43,10 @@ class Auth {
 
   Future<String> login(String email, String password) async {
     try {
+
+      await Profile().saveFcmToken(email);
+      debugPrint("Updated user token after logging in");
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -118,6 +123,11 @@ class Auth {
         credential,
       );
 
+      if (user.user!.email != null) {
+        debugPrint("saved user details for google authenticated user");
+        await Profile().saveFcmToken(user.user!.email);
+      }
+
       debugPrint("Google Sign-in Successful. Email: ${user.user!.email}");
       return user.user!.email;
     } catch (e) {
@@ -128,7 +138,7 @@ class Auth {
 
    Future<User?> getCurrentUser() async {
     try {
-      return  FirebaseAuth.instance.currentUser;
+      return FirebaseAuth.instance.currentUser;
     } catch (e) {
       debugPrint("could not get current user");
       return null;

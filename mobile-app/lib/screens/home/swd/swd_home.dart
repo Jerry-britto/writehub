@@ -1,6 +1,6 @@
 import 'package:client/screens/home/swd/bookscribe.dart';
 import 'package:client/screens/home/swd/home.dart';
-import 'package:client/screens/home/swd/notifications.dart';
+import 'package:client/screens/home/notifications.dart';
 import 'package:client/screens/home/swd/profile.dart';
 import 'package:flutter/material.dart';
 

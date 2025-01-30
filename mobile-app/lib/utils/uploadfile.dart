@@ -28,9 +28,7 @@ class Uploadfile {
   /// Returns a list of maps containing file paths and names, or an empty list if no files are selected.
   Future<List<Map<String, String>>> selectMultipleFiles() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-      );
+      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
 
       if (result != null && result.files.isNotEmpty) {
         return result.files.map((file) {
@@ -47,11 +45,16 @@ class Uploadfile {
   }
 
   Future<void> requestStoragePermissions() async {
-  if (await Permission.storage.isDenied || await Permission.storage.isPermanentlyDenied) {
-    final status = await Permission.storage.request();
-    if (!status.isGranted) {
-      throw Exception("Storage permission is required.");
+    try {
+      if (await Permission.storage.isDenied ||
+          await Permission.storage.isPermanentlyDenied) {
+        final status = await Permission.storage.request();
+        if (!status.isGranted) {
+          throw Exception("Storage permission is required.");
+        }
+      }
+    } catch (e) {
+      debugPrint("could not get permission due to $e");
     }
   }
-}
 }
