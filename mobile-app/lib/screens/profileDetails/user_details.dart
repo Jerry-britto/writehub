@@ -92,6 +92,7 @@ class _UserdetailsState extends State<Userdetails> {
                         hint: 'Enter your phone number using only digits',
                         child: ReusableInputField(
                           labelText: "Phone Number",
+                          maxLength: 10,
                           hintText: "Enter Phone Number",
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
@@ -274,12 +275,14 @@ class _UserdetailsState extends State<Userdetails> {
                                         ),
                                       )
                                       : Flexible(
-                                        child: Row(
+                                        child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Text("${collegeIdentity["name"]} "),
                                             ReusableButton(
+                                              buttonColor: Colors.red,
+                                              padding: 9.5,
                                               buttonText: "Remove selection",
                                               onPressed: () {
                                                 setState(() {
@@ -561,13 +564,15 @@ class _UserdetailsState extends State<Userdetails> {
                                         ),
                                       )
                                       : Flexible(
-                                        child: Row(
+                                        child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Text("${result["name"]} "),
                                             ReusableButton(
                                               buttonText: "Remove photo",
+                                              buttonColor: Colors.red,
+                                              padding: 9.5,
                                               onPressed: () {
                                                 setState(() {
                                                   result.clear();

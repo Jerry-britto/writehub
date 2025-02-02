@@ -75,6 +75,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                         label: 'Phone number input field',
                         hint: 'Enter your phone number using only digits',
                         child: ReusableInputField(
+                          maxLength: 10,
                           labelText: "Phone Number",
                           hintText: "Enter Phone Number",
                           controller: _phoneController,
@@ -255,12 +256,14 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                         ),
                                       )
                                       : Flexible(
-                                        child: Row(
+                                        child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Text("${collegeIdentity["name"]} "),
                                             ReusableButton(
+                                              padding: 9.5,
+                                              buttonColor: Colors.red,
                                               buttonText: "Remove selection",
                                               onPressed: () {
                                                 setState(() {
@@ -339,13 +342,15 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                                         ),
                                       )
                                       : Flexible(
-                                        child: Row(
+                                        child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Text("${result["name"]} "),
                                             ReusableButton(
                                               buttonText: "Remove photo",
+                                              buttonColor: Colors.red,
+                                              padding: 9.5,
                                               onPressed: () {
                                                 setState(() {
                                                   result.clear();

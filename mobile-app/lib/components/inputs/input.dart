@@ -12,7 +12,7 @@ class ReusableInputField extends StatelessWidget {
   final dynamic onTap;
   final bool readOnly, isEnabled;
   final String? Function(String?)? validator;
-
+  final int? maxLength;
   const ReusableInputField({
     super.key,
     this.labelText = "",
@@ -27,6 +27,7 @@ class ReusableInputField extends StatelessWidget {
     this.readOnly = false,
     this.isEnabled = true,
     this.onTap,
+    this.maxLength,
   });
 
   @override
@@ -43,6 +44,7 @@ class ReusableInputField extends StatelessWidget {
         ],
         TextFormField(
           onTap: onTap,
+          maxLength: maxLength,
           controller: controller,
           obscureText: isPassword,
           readOnly: readOnly,
@@ -51,6 +53,7 @@ class ReusableInputField extends StatelessWidget {
           decoration: InputDecoration(
             labelText: labelText,
             filled: true,
+            counterText: "",
             fillColor: Colors.white,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,

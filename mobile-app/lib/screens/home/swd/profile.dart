@@ -73,6 +73,12 @@ class _SwdProfileState extends State<SwdProfile> {
             hintText: label,
             controller: controller,
             readOnly: !isEditing,
+            isEnabled: isEditing,
+            maxLength: label == "Phone Number" ? 10 : null,
+            keyboardType:
+                label == "Phone Number"
+                    ? TextInputType.phone
+                    : TextInputType.text,
           ),
         ),
         const SizedBox(width: 8),
@@ -99,10 +105,7 @@ class _SwdProfileState extends State<SwdProfile> {
     Map<String, String>? userPhoto = await Uploadfile().selectSingleFile();
     if (userPhoto != null) {
       // Assuming a function `uploadImageToSupabase` that uploads the image and returns the URL.
-      String imageUrl = await Profile().uploadProfilePhoto(
-        userPhoto,
-        "swd",
-      );
+      String imageUrl = await Profile().uploadProfilePhoto(userPhoto, "swd");
 
       setState(() {
         profilePhoto =
@@ -139,15 +142,22 @@ class _SwdProfileState extends State<SwdProfile> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Profile Picture
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 100,
-                      backgroundImage: NetworkImage(profilePhoto),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Color(0xFF1A237E), width: 5),
+                      ),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 100,
+                        backgroundImage: NetworkImage(profilePhoto),
+                      ),
                     ),
-                     ElevatedButton(
+
+                    ElevatedButton(
                       onPressed: _pickImage,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: Colors.green,
                       ),
                       child: const Text(
                         "Change Profile Photo",

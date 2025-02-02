@@ -101,6 +101,12 @@ class _ScribeProfileState extends State<ScribeProfile> {
             hintText: label,
             controller: controller,
             readOnly: !isEditing,
+            isEnabled: isEditing,
+            maxLength: label == "Phone Number" ? 10 : null,
+            keyboardType:
+                label == "Phone Number"
+                    ? TextInputType.phone
+                    : TextInputType.text,
           ),
         ),
         const SizedBox(width: 8),
@@ -139,15 +145,21 @@ class _ScribeProfileState extends State<ScribeProfile> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Profile Picture
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      radius: 100,
-                      backgroundImage: NetworkImage(profilePhoto),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Color(0xFF1A237E), width: 5),
+                      ),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 100,
+                        backgroundImage: NetworkImage(profilePhoto),
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: _pickImage,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: Colors.green,
                       ),
                       child: const Text(
                         "Change Profile Photo",
