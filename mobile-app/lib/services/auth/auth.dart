@@ -2,6 +2,7 @@ import 'package:client/services/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
 class Auth {
   Future<String> register(String email, String password) async {
@@ -136,7 +137,7 @@ class Auth {
     }
   }
 
-   Future<User?> getCurrentUser() async {
+   Future<firebase_auth.User?> getCurrentUser() async {
     try {
       return FirebaseAuth.instance.currentUser;
     } catch (e) {

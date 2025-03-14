@@ -94,6 +94,8 @@ class Profile {
                 "profile_photo": profilePhoto != "" ? profilePhoto : null,
                 "collegeName": collegeName,
                 "college_proof": collegeProof != "" ? collegeProof : null,
+                'academic_year': academicYear,
+                'course': course,
               })
               .eq('email', email.toLowerCase())
               .select();
@@ -135,13 +137,6 @@ class Profile {
           )
           .select();
 
-      // Step 4: insert student details
-
-      await supabase.from('students').insert({
-        'user_id': userId,
-        'academic_year': academicYear,
-        'course': course,
-      }).select();
       debugPrint("User and student details updated successfully");
     } catch (e) {
       debugPrint("Error saving user details: $e");
@@ -172,6 +167,8 @@ class Profile {
                     profilePhoto != "" ? profilePhoto.toString() : null,
                 "college_proof":
                     collegeProof != "" ? collegeProof.toString() : null,
+                "academic_year": academicYear,
+                "course": course,
               })
               .eq("email", email)
               .select();
@@ -179,14 +176,12 @@ class Profile {
       if (userDetails.isEmpty) {
         throw Exception("could not update user details");
       }
-      final userId = userDetails[0]['user_id'];
-      debugPrint("User id - $userId");
 
-      await supabase.from("scribes").insert({
-        "user_id": userId,
-        "academic_year": academicYear,
-        "course": course,
-      }).select();
+      await supabase.from("scribes_points").insert(
+        {
+          "user_id": userDetails[0]["user_id"]
+        }
+      );
       debugPrint("succesfully saved scribe details");
     } catch (e) {
       debugPrint("Error saving volunteer details: $e");

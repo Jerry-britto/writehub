@@ -1,5 +1,7 @@
 import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/input.dart';
+import 'package:client/services/scribeallotment/scribe_allotment.dart';
+import 'package:client/utils/alertbox_util.dart';
 import 'package:flutter/material.dart';
 
 class Bookscribe extends StatefulWidget {
@@ -15,17 +17,23 @@ class _BookscribeState extends State<Bookscribe> {
   final examTimeController = TextEditingController();
 
   Future<void> _selectDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: today, // Prevent past dates
       lastDate: DateTime(2100),
+      selectableDayPredicate: (DateTime date) {
+        return date.weekday != DateTime.sunday; // Block Sundays
+      },
     );
 
     if (pickedDate != null) {
       setState(() {
+        //  Format date as "YYYY-MM-DD" before saving
         examDateController.text =
-            "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}"; // Format the date
+            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
       });
     }
   }
@@ -66,6 +74,7 @@ class _BookscribeState extends State<Bookscribe> {
               hint: "Enter Exam Date",
               child: ReusableInputField(
                 hintText: "Select Exam Date",
+                labelText: "YYYY-MM-DD",
                 controller: examDateController,
                 onTap: () => _selectDate(context),
               ),
@@ -87,7 +96,29 @@ class _BookscribeState extends State<Bookscribe> {
                 buttonText: "Place Request",
                 buttonColor: Color(0xFF1A237E),
                 weight: FontWeight.bold,
-                onPressed: () {},
+                onPressed: () async {
+                  if (subjectNameController.text.isEmpty ||
+                      examDateController.text.isEmpty ||
+                      examTimeController.text.isEmpty) {
+                    DialogUtil.showAlertDialog(
+                      context,
+                      "Incomplete application",
+                      "Kindly provide all the details related to exam",
+                    );
+                    return;
+                  }
+                  await ScribeAllotment().bookScribe(
+                    context,
+                    subjectNameController.text,
+                    examTimeController.text,
+                    examDateController.text,
+                  );
+                  subjectNameController.clear();
+                  examDateController.clear();
+                  examTimeController.clear();
+
+                  // await ScribeAllotment().filterAndNotifyScribes({},1,"","","");
+                },
               ),
             ),
           ],

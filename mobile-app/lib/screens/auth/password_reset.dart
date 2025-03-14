@@ -25,6 +25,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       try {
         String response = await Auth().passwordReset(_emailController.text);
         DialogUtil.showAlertDialog(
+          // ignore: use_build_context_synchronously
           context,
           response.toLowerCase().contains("password reset")
               ? "Successfully done"
@@ -34,6 +35,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _emailController.clear();
       } catch (error) {
         DialogUtil.showAlertDialog(
+          // ignore: use_build_context_synchronously
           context,
           "Error",
           "Something went wrong. Please try again.",

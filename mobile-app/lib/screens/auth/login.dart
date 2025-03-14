@@ -190,6 +190,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (!loginResponse.startsWith("success")) {
+        // ignore: use_build_context_synchronously
         DialogUtil.showAlertDialog(context, "Login failed", loginResponse);
         setState(() {
           _isLoading = false;
@@ -197,6 +198,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
+      // ignore: use_build_context_synchronously
       SnackBarUtil.showSnackBar(context, loginResponse);
 
       Map<String, dynamic> user = await Profile().getDetails(
@@ -209,6 +211,7 @@ class _LoginPageState extends State<LoginPage> {
         _redirectToHomePage(user);
       }
     } catch (error) {
+      // ignore: use_build_context_synchronously
       DialogUtil.showAlertDialog(context, "Error", error.toString());
       setState(() {
         _isLoading = false;
@@ -236,6 +239,7 @@ class _LoginPageState extends State<LoginPage> {
     } catch (error) {
       debugPrint("Google sign-in error: ${error.toString()}");
       SnackBarUtil.showSnackBar(
+        // ignore: use_build_context_synchronously
         context,
         "Google sign-in failed, please try again",
       );

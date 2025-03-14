@@ -2,7 +2,7 @@ import 'package:client/screens/auth/auth_wrapper.dart';
 import 'package:client/screens/auth/login.dart';
 import 'package:client/screens/home/scribe/scribe_home.dart';
 import 'package:client/screens/home/swd/swd_home.dart';
-import 'package:client/services/notifications/notification_service.dart';
+import 'package:client/services/notifications/notification_receive__service.dart';
 import 'package:client/utils/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +11,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    await dotenv.load();
+  await dotenv.load();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Supabase.initialize(
-    url:dotenv.env["SUPABASE_URL"].toString(),
-    anonKey: dotenv.env["SUPABASE_ANONKEY"].toString()
+    url: dotenv.env["SUPABASE_URL"].toString(),
+    anonKey: dotenv.env["SUPABASE_ANONKEY"].toString(),
   );
   await NotificationService().initNotifications();
   runApp(const MainApp());
