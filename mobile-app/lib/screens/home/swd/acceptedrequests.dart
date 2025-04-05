@@ -1,4 +1,5 @@
 import 'package:client/components/Cards/exam_card.dart';
+import 'package:client/screens/home/swd/swd_home.dart';
 import 'package:client/services/auth/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -87,38 +88,53 @@ class _AcceptedrequestsState extends State<AcceptedRequests> {
         ),
       ),
       backgroundColor: Color(0xFFBBDEFB),
-      body:
-          isLoading
-              ? Center(
-                child: const CircularProgressIndicator(
-                  color: Color(0xFF1A237E),
-                ),
-              )
-              : acceptedRequests.isEmpty
-              ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    "No accepted requests found",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              )
-              : SingleChildScrollView(
-                child: Column(
-                  children:
-                      acceptedRequests.map((request) {
-                        return ExamCard(
-                          subjectName: request["subject_name"],
-                          examDateTime: DateTime.parse(
-                            "${request["exam_date"]} ${request["exam_time"]}",
-                          ),
-                          userDetails: request["scribe"],
-                          isDecline: false,
-                        );
-                      }).toList(),
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=>const SwdHome())),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF1A237E),
+                foregroundColor: Colors.white,
               ),
+              child: Text("Back to Home"),
+            ),
+          ),
+          Expanded(
+            child: isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF1A237E),
+                    ),
+                  )
+                : acceptedRequests.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(
+                            "No accepted requests found",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: acceptedRequests.map((request) {
+                            return ExamCard(
+                              subjectName: request["subject_name"],
+                              examDateTime: DateTime.parse(
+                                "${request["exam_date"]} ${request["exam_time"]}",
+                              ),
+                              userDetails: request["scribe"],
+                              isDecline: false,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

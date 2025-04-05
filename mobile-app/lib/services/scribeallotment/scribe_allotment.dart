@@ -118,14 +118,14 @@ class ScribeAllotment {
         debugPrint("Excluding already assigned scribe for backup scribe");
         scribes = await supabase
             .from("users")
-            .select("user_id, fcm_token, collegeName")
+            .select("user_id,name,fcm_token, collegeName")
             .eq("role", "scribe")
             .neq("course", swdUser["course"])
             .neq("user_id", scribeId);
       } else {
         scribes = await supabase
             .from("users")
-            .select("user_id, fcm_token, collegeName")
+            .select("user_id, name ,fcm_token, collegeName")
             .eq("role", "scribe")
             .neq("course", swdUser["course"]);
       }
@@ -189,16 +189,15 @@ class ScribeAllotment {
 
         //   // Send push notification to scribe
         await NotificationSendService().sendNotification(
-          messageTitle ??
-              "Request id - $requestId.\n A new request is available for $subjectName on $date at $time. Kindly provide your response by responding to this message on pending requests section",
-          "New Scribe Request",
+          "HI ${scribe["name"]} there is an exam happening on $date at $time for subject $subjectName. Kindly provide your response",
+          messageTitle ?? "New Scribe Request",
           scribe["fcm_token"],
         );
 
         await supabase.from("notification").insert({
           "user_id": scribe["user_id"],
           "message":
-              "Request id - $requestId.\n A new request is available for $subjectName on $date at $time. Kindly provide your response by responding to this message on pending requests section",
+              "HI ${scribe["name"]} there is an exam happening on $date at $time for subject $subjectName. Kindly provide your response",
           "title": messageTitle ?? "New Scribe Request",
         });
       }
@@ -255,7 +254,7 @@ class ScribeAllotment {
       final requestData =
           await supabase
               .from("exam_requests")
-              .update({"status": "DECLINED"})
+              .update({"status": "BACKUP NEEDED"})
               .eq("request_id", requestId)
               .select("""
               exam_time,exam_date,subject_name,
@@ -264,10 +263,13 @@ class ScribeAllotment {
               """)
               .single();
       debugPrint("\n Request data: $requestData \n ");
-
+      await supabase
+          .from("exam_requests")
+          .update({"scribe_id": null})
+          .eq("request_id", requestId);
       // informing swd about cancellation of booking
       await NotificationSendService().sendNotification(
-        "The assigned scribe has declined the booking. We are on search for a new scribe",
+        "The assigned scribe has declined the booking for ${requestData["subject_name"]} on ${requestData["exam_date"]}. We are on search for a new scribe",
         "In Search for new scribe",
         requestData["swd"]["fcm_token"],
       );
@@ -275,7 +277,7 @@ class ScribeAllotment {
       await supabase.from("notification").insert({
         "title": "In Search for new scribe",
         "message":
-            "The assigned scribe has declined the booking. We are on search for a new scribe",
+            "The assigned scribe has declined the booking for ${requestData["subject_name"]} on ${requestData["exam_date"]}. We are on search for a new scribe",
         "user_id": requestData["swd"]["user_id"],
       });
 
@@ -283,9 +285,7 @@ class ScribeAllotment {
 
       await deductScribePoints(
         requestData["scribe"]["user_id"],
-        DateTime.parse(
-          "${requestData["exam_date"]}",
-        ),
+        DateTime.parse("${requestData["exam_date"]}"),
       );
 
       await NotificationSendService().sendNotification(
@@ -302,29 +302,29 @@ class ScribeAllotment {
 
       // based on exam data send requests to that many scribes
       DateTime today = DateTime.now();
-      today = DateTime(today.year,today.month,today.day);
+      today = DateTime(today.year, today.month, today.day);
       DateTime examDate = DateTime.parse(requestData["exam_date"]);
       int daysLeft = examDate.difference(today).inDays;
 
-      final newExamRequest =
-          await supabase
-              .from("exam_requests")
-              .insert({
-                "student_id": requestData["swd"]["user_id"],
-                "subject_name": requestData["subject_name"],
-                "exam_time": requestData["exam_time"],
-                "exam_date": requestData["exam_date"],
-                "status": 'PENDING',
-              })
-              .select("request_id")
-              .single();
+      // final newExamRequest =
+      //     await supabase
+      //         .from("exam_requests")
+      //         .insert({
+      //           "student_id": requestData["swd"]["user_id"],
+      //           "subject_name": requestData["subject_name"],
+      //           "exam_time": requestData["exam_time"],
+      //           "exam_date": requestData["exam_date"],
+      //           "status": 'PENDING',
+      //         })
+      //         .select("request_id")
+      //         .single();
 
       if (daysLeft <= 3) {
         // inform all scribes excluding current scribe
         debugPrint("exam is close by and days left are $daysLeft");
         final scribesList = await supabase
             .from("users")
-            .select("user_id,fcm_token")
+            .select("user_id,fcm_token,name")
             .eq("role", "scribe")
             .neq("user_id", requestData["scribe"]['user_id']);
         debugPrint(
@@ -332,13 +332,14 @@ class ScribeAllotment {
         );
         for (var scribe in scribesList) {
           await supabase.from("pending_requests").insert({
-            "request_id": newExamRequest["request_id"],
+            // "request_id": newExamRequest["request_id"],
+            "request_id": requestId,
             "user_id": scribe["user_id"],
           });
 
           //   // Send push notification to scribe
           await NotificationSendService().sendNotification(
-            "We urgently need a scribe on ${newExamRequest["exam_date"]} at ${newExamRequest["exam_time"]}. Kindly provide your response by responding to this message on pending requests section",
+            "HI ${scribe["name"]} We urgently need a scribe on ${requestData["exam_date"]} at ${requestData["exam_time"]}. Kindly provide your response by responding to this message on pending requests section",
             "Urgent Scribe Requirment",
             scribe["fcm_token"],
           );
@@ -346,7 +347,7 @@ class ScribeAllotment {
           await supabase.from("notification").insert({
             "user_id": scribe["user_id"],
             "message":
-                "We urgently need a scribe on ${newExamRequest["exam_date"]} at ${newExamRequest["exam_time"]}. Kindly provide your response by responding to this message on pending requests section",
+                "HI ${scribe["name"]} We urgently need a scribe on ${requestData["exam_date"]} at ${requestData["exam_time"]}. Kindly provide your response by responding to this message on pending requests section",
             "title": "Urgent Scribe Requirment",
           });
         }
@@ -355,7 +356,8 @@ class ScribeAllotment {
         debugPrint("exam has still time and days left are $daysLeft");
         await filterAndNotifyScribes(
           requestData["swd"],
-          newExamRequest["request_id"],
+          // newExamRequest["request_id"],
+          requestId,
           requestData["subject_name"],
           requestData["exam_date"],
           requestData["exam_time"],
@@ -372,13 +374,15 @@ class ScribeAllotment {
   Future<void> deductScribePoints(int scribeId, DateTime examDate) async {
     try {
       DateTime now = DateTime.now();
-      now = DateTime(now.year,now.month,now.day);
+      now = DateTime(now.year, now.month, now.day);
       debugPrint(
-        "Todays date is - ${now.toString()} and \n exam date is  ${examDate.toString()}",
+        "Today's date is - ${now.toString()} and \n Exam date is  ${examDate.toString()}",
       );
+
       // Calculate days difference between now and exam date
       int daysDifference = examDate.difference(now).inDays;
       debugPrint("Difference in days $daysDifference");
+
       double deductionPoints;
 
       if (daysDifference > 7) {
@@ -400,9 +404,10 @@ class ScribeAllotment {
               .eq('user_id', scribeId)
               .single();
 
-      debugPrint("User point details :$response");
+      debugPrint("User point details: $response");
 
-      double currentPoints = response['points'] ?? 0.0;
+      // Ensure 'points' is properly extracted as a double
+      double currentPoints = (response['points'] as num).toDouble();
 
       // Skip if points are already 0
       if (currentPoints <= 0) {
@@ -410,10 +415,10 @@ class ScribeAllotment {
         return;
       }
 
-      double newPoints = (currentPoints) - deductionPoints;
+      double newPoints = currentPoints - deductionPoints;
 
       // Ensure points don't go below 0
-      if (newPoints <= 0) {
+      if (newPoints < 0) {
         newPoints = 0.0;
       }
 

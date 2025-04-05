@@ -108,7 +108,7 @@ class _HomeState extends State<Home> {
                       Expanded(
                         child: GestureDetector(
                           onTap:
-                              () => Navigator.of(context).push(
+                              () => Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder:
                                       (_) => Pendingrequests(userId: userId),
@@ -153,7 +153,7 @@ class _HomeState extends State<Home> {
                       Expanded(
                         child: GestureDetector(
                           onTap:
-                              () => Navigator.of(context).push(
+                              () => Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: (_) => const AcceptedRequests(),
                                 ),

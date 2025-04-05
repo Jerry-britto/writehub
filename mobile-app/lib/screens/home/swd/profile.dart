@@ -40,7 +40,7 @@ class _SwdProfileState extends State<SwdProfile> {
             details["phone_number"] ?? "No Phone Number";
         profilePhoto =
             details["profile_photo"] ??
-            "https://images.pexels.com/photos/7366257/pexels-photo-7366257.jpeg?auto=compress&cs=tinysrgb&w=600";
+            "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg?w=360";
         isLoading = false;
       });
     } else {

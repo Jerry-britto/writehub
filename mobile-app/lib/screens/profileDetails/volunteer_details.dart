@@ -34,7 +34,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Volunteer Details Details',
+          'Volunteer Details',
           style: TextStyle(fontSize: 22, color: Colors.white),
         ),
         centerTitle: true,

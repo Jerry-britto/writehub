@@ -1,4 +1,4 @@
-import 'package:client/services/scribeallotment/scribe_allotment.dart';
+import 'package:client/utils/snackbar_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -12,12 +12,14 @@ class ExamCard extends StatelessWidget {
     this.forScribe = true,
     this.isDecline = true,
     this.requestId,
+    this.onCancel
   });
   final String subjectName;
   final int? requestId;
   final DateTime examDateTime;
   final Map<String, dynamic> userDetails;
   bool forScribe, isDecline;
+  final VoidCallback?onCancel;
 
   void _showuserDetails(BuildContext context) {
     showModalBottomSheet(
@@ -112,8 +114,10 @@ class ExamCard extends StatelessWidget {
               actions: [
                 ElevatedButton(
                   onPressed: () {
-                    ScribeAllotment().rejectAcceptedRequest(requestId);
+                    // ScribeAllotment().rejectAcceptedRequest(requestId);
+                    onCancel!();
                     Navigator.pop(context);
+                    SnackBarUtil.showSnackBar(context, "Cancelled Booking successfully");
                   },
                   child: const Text("Yes"),
                 ),

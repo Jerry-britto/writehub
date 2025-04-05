@@ -111,7 +111,7 @@ class _HomeState extends State<Home> {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => Navigator.of(context).push(
+                        onTap: () => Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (_) => IncomingRequests(userId: userId),
                           ),
@@ -148,7 +148,7 @@ class _HomeState extends State<Home> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => Navigator.of(context).push(
+                        onTap: () => Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (_) => const AcceptedRequests(),
                           ),

@@ -1,5 +1,7 @@
 import 'package:client/components/Cards/exam_card.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
 import 'package:client/services/auth/auth.dart';
+import 'package:client/services/scribeallotment/scribe_allotment.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -72,13 +74,23 @@ class _AcceptedRequestsState extends State<AcceptedRequests> {
     getAcceptedRequests();
   }
 
+  void cancelRequest(requestId){
+    ScribeAllotment().rejectAcceptedRequest(requestId);
+    final updatedRequests = acceptedRequests.where((request) => 
+          request["request_id"] != requestId).toList();
+      
+      setState(() {
+        acceptedRequests = updatedRequests;
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xFF1A237E),
-        title: Text(
+        backgroundColor: const Color(0xFF1A237E),
+        title: const Text(
           "ACCEPTED REQUESTS",
           style: TextStyle(
             color: Colors.white,
@@ -87,40 +99,62 @@ class _AcceptedRequestsState extends State<AcceptedRequests> {
           ),
         ),
       ),
-      backgroundColor: Color(0xFFBBDEFB),
-      body:
-          isLoading
-              ? Center(
-                child: const CircularProgressIndicator(
-                  color: Color(0xFF1A237E),
-                ),
-              )
-              : acceptedRequests.isEmpty
-              ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    "No accepted requests found",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              )
-              : SingleChildScrollView(
-                child: Column(
-                  children:
-                      acceptedRequests.map((request) {
-                        return ExamCard(
-                          requestId:request["request_id"],
-                          subjectName: request["subject_name"],
-                          examDateTime: DateTime.parse(
-                            "${request["exam_date"]} ${request["exam_time"]}",
-                          ),
-                          userDetails: request["swd"],
-                          forScribe: false,
-                        );
-                      }).toList(),
-                ),
+      backgroundColor: const Color(0xFFBBDEFB),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => ScribeHome()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A237E),
+                foregroundColor: Colors.white,
               ),
+              child: const Text("Back to Home"),
+            ),
+          ),
+          Expanded(
+            child:
+                isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF1A237E),
+                      ),
+                    )
+                    : acceptedRequests.isEmpty
+                    ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          "No accepted requests found",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    )
+                    : SingleChildScrollView(
+                      child: Column(
+                        children:
+                            acceptedRequests.map((request) {
+                              return ExamCard(
+                                requestId: request["request_id"],
+                                subjectName: request["subject_name"],
+                                examDateTime: DateTime.parse(
+                                  "${request["exam_date"]} ${request["exam_time"]}",
+                                ),
+                                userDetails: request["swd"],
+                                forScribe: false,
+                                onCancel: () => cancelRequest(request["request_id"]),
+                              );
+                            }).toList(),
+                      ),
+                    ),
+          ),
+        ],
+      ),
     );
   }
 }

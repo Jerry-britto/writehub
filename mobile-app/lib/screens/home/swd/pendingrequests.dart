@@ -1,4 +1,5 @@
 import 'package:client/components/Cards/pending_request_card.dart';
+import 'package:client/screens/home/swd/swd_home.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,14 +25,14 @@ class _PendingrequestsState extends State<Pendingrequests> {
           .eq("status", "PENDING");
 
       debugPrint(
-        "\n\nNo of pending requests is ${response.length} which are $response\n",
+        "\n\nNo of pending requests is \${response.length} which are \$response\n",
       );
       setState(() {
         pendingRequests = response;
         isLoading = false; // Set loading to false when data is fetched
       });
     } catch (e) {
-      debugPrint("could not retrieve requests due to $e");
+      debugPrint("could not retrieve requests due to \$e");
       setState(() {
         isLoading = false;
       });
@@ -60,35 +61,54 @@ class _PendingrequestsState extends State<Pendingrequests> {
         ),
       ),
       backgroundColor: Color(0xFFBBDEFB),
-      body:
-          isLoading
-              ? Center(child: CircularProgressIndicator())
-              : pendingRequests.isEmpty
-              ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    "No pending requests found",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              )
-              : SingleChildScrollView(
-                child: Column(
-                  children:
-                      pendingRequests.map((request) {
-                        // Convert exam_date and exam_time to DateTime
-                        DateTime dateTime = DateTime.parse(
-                          '${request['exam_date']} ${request['exam_time']}',
-                        );
-
-                        return PendingRequestCard(
-                          subjectName: request['subject_name'],
-                          dateTime: dateTime,
-                        );
-                      }).toList(),
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const SwdHome()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF1A237E),
+                foregroundColor: Colors.white,
               ),
+              child: Text("Back to Home"),
+            ),
+          ),
+          Expanded(
+            child:
+                isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : pendingRequests.isEmpty
+                    ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          "No pending requests found",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    )
+                    : SingleChildScrollView(
+                      child: Column(
+                        children:
+                            pendingRequests.map((request) {
+                              DateTime dateTime = DateTime.parse(
+                                '${request['exam_date']} ${request['exam_time']}',
+                              );
+                              return PendingRequestCard(
+                                subjectName: request['subject_name'],
+                                dateTime: dateTime,
+                              );
+                            }).toList(),
+                      ),
+                    ),
+          ),
+        ],
+      ),
     );
   }
 }

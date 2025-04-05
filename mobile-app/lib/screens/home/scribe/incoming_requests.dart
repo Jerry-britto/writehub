@@ -1,4 +1,5 @@
 import 'package:client/components/Cards/pending_request_card.dart';
+import 'package:client/screens/home/scribe/scribe_home.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -28,7 +29,7 @@ class _IncomingRequestsState extends State<IncomingRequests> {
             .from("exam_requests")
             .select("exam_date, exam_time, subject_name")
             .eq("request_id", request["request_id"])
-            .maybeSingle(); 
+            .maybeSingle();
 
         if (examRequest != null) {
           enrichedRequests.add({
@@ -38,7 +39,7 @@ class _IncomingRequestsState extends State<IncomingRequests> {
         }
       }
       return enrichedRequests;
-    }).asyncMap((event) => event); 
+    }).asyncMap((event) => event);
   }
 
   @override
@@ -57,54 +58,73 @@ class _IncomingRequestsState extends State<IncomingRequests> {
         ),
       ),
       backgroundColor: const Color(0xFFBBDEFB),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: getIncomingRequestsStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text("Error loading data: ${snapshot.error}"),
-            );
-          }
-
-          List<Map<String, dynamic>> incomingRequests = snapshot.data ?? [];
-
-          if (incomingRequests.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Text(
-                  "No pending requests found",
-                  style: TextStyle(fontSize: 16),
-                ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_)=> const ScribeHome()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A237E),
+                foregroundColor: Colors.white,
               ),
-            );
-          }
-
-          return SingleChildScrollView(
-            child: Column(
-              children: incomingRequests.map((request) {
-                final examRequest = request["exam_requests"];
-                if (examRequest == null) return const SizedBox(); // Skip if null
-
-                // Convert exam_date and exam_time to DateTime
-                DateTime dateTime = DateTime.parse(
-                  '${examRequest['exam_date']} ${examRequest['exam_time']}',
-                );
-
-                return PendingRequestCard(
-                  subjectName: examRequest['subject_name'],
-                  dateTime: dateTime,
-                  isScribe: true,
-                  userId: widget.userId,
-                  requestId: request["request_id"],
-                );
-              }).toList(),
+              child: const Text("Back to Home"),
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: getIncomingRequestsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error loading data: ${snapshot.error}"),
+                  );
+                }
+
+                List<Map<String, dynamic>> incomingRequests = snapshot.data ?? [];
+
+                if (incomingRequests.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        "No pending requests found",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  );
+                }
+
+                return SingleChildScrollView(
+                  child: Column(
+                    children: incomingRequests.map((request) {
+                      final examRequest = request["exam_requests"];
+                      if (examRequest == null) return const SizedBox(); // Skip if null
+
+                      // Convert exam_date and exam_time to DateTime
+                      DateTime dateTime = DateTime.parse(
+                        '${examRequest['exam_date']} ${examRequest['exam_time']}',
+                      );
+
+                      return PendingRequestCard(
+                        subjectName: examRequest['subject_name'],
+                        dateTime: dateTime,
+                        isScribe: true,
+                        userId: widget.userId,
+                        requestId: request["request_id"],
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
