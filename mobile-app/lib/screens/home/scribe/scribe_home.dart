@@ -1,6 +1,7 @@
 import 'package:client/screens/home/scribe/home.dart';
 import 'package:client/screens/home/notifications.dart';
 import 'package:client/screens/home/scribe/profile.dart';
+import 'package:client/screens/home/scribe/rewards.dart';
 import 'package:flutter/material.dart';
 
 class ScribeHome extends StatefulWidget {
@@ -14,7 +15,12 @@ class _ScribeHomeState extends State<ScribeHome> {
   int screenIdx = 0;
   String screenTitle = "Home Screen";
 
-  List<Widget> screens = [Home(), Notifications(), ScribeProfile()];
+  List<Widget> screens = [
+    Home(),
+    RewardsScreen(),
+    Notifications(),
+    ScribeProfile(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +48,13 @@ class _ScribeHomeState extends State<ScribeHome> {
           ),
           BottomNavigationBarItem(
             icon: Semantics(
+              label: "Rewards",
+              child: const Icon(Icons.emoji_events),
+            ),
+            label: "Rewards",
+          ),
+          BottomNavigationBarItem(
+            icon: Semantics(
               label: "Notifications",
               child: const Icon(Icons.notifications),
             ),
@@ -64,13 +77,16 @@ class _ScribeHomeState extends State<ScribeHome> {
               screenIdx = value;
               switch (value) {
                 case 0:
-                  screenTitle = "Home Page";
+                  screenTitle = "Home";
                   break;
                 case 1:
-                  screenTitle = "Notifications";
+                  screenTitle = "Rewards";
                   break;
                 case 2:
-                  screenTitle = "Your Profile";
+                  screenTitle = "Notifications";
+                  break;
+                case 3:
+                  screenTitle = "Profile";
                   break;
               }
             }),

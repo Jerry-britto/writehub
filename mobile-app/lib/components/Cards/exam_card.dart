@@ -202,9 +202,9 @@ class ExamCard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              alignment: Alignment.centerLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   if (isDecline)
                     ElevatedButton(

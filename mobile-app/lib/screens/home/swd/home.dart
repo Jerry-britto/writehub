@@ -252,7 +252,7 @@ class _HomeState extends State<Home> {
                                 ),
                                 child: ElevatedButton(
                                   onPressed:
-                                      () => Navigator.of(context).push(
+                                      () => Navigator.of(context).pushReplacement(
                                         MaterialPageRoute(
                                           builder:
                                               (_) => const AcceptedRequests(),

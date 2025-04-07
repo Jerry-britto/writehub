@@ -54,7 +54,6 @@ class ScribeAllotment {
       final requestId = requestResponse["request_id"];
 
       // Success notification
-      SnackBarUtil.showSnackBar(context, "Application submitted");
 
       try {
         await NotificationSendService().sendNotification(
@@ -65,7 +64,7 @@ class ScribeAllotment {
           "user_id": userId,
           "title": "APPLICATION SUBMITTED",
           "message":
-              "Your application is being processed will let you know about the assigned scribe",
+              "Your application for $subjectname exam is being processed, we will let you know about the assigned scribe",
         });
       } catch (notificationError) {
         debugPrint("while forwarding ");

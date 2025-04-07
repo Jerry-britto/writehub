@@ -73,7 +73,7 @@ class _NotificationsState extends State<Notifications> {
         groupedNotifications = sortedGroupedData;
       });
 
-      debugPrint("Sorted Grouped Notifications: $groupedNotifications");
+      // debugPrint("Sorted Grouped Notifications: $groupedNotifications");
     } catch (e) {
       debugPrint("Could not retrieve notifications due to $e");
     } finally {
@@ -81,6 +81,28 @@ class _NotificationsState extends State<Notifications> {
         isLoading = false; // Hide loader after fetching data
       });
     }
+  }
+
+  void handleDismiss(String date, Map<String, dynamic> notification) async {
+    setState(() {
+      groupedNotifications[date]?.remove(notification);
+      if (groupedNotifications[date]?.isEmpty ?? false) {
+        groupedNotifications.remove(date);
+      }
+    });
+
+    await supabase
+        .from("notification")
+        .delete()
+        .eq("notification_id", notification['notification_id'])
+        .then((_) {
+          debugPrint(
+            "Notification ${notification['notification_id']} deleted from Supabase",
+          );
+        })
+        .catchError((e) {
+          debugPrint("Failed to delete notification: $e");
+        });
   }
 
   @override
@@ -91,57 +113,82 @@ class _NotificationsState extends State<Notifications> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child:
-          isLoading
-              ? const Center(child: CircularProgressIndicator()) // Show loader
-              : groupedNotifications.isEmpty
-              ? const Center(
-                child: Text(
-                  "No Notifications",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                ),
-              )
-              : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      groupedNotifications.entries.map((entry) {
-                        String date = entry.key;
-                        List<Map<String, dynamic>> notifications = entry.value;
+    return RefreshIndicator(
+      onRefresh: () async {
+        debugPrint("Reloading notifications");
+        await getNotifications();
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child:
+            isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(),
+                ) // Show loader
+                : groupedNotifications.isEmpty
+                ? const Center(
+                  child: Text(
+                    "No Notifications",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                )
+                : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        groupedNotifications.entries.map((entry) {
+                          String date = entry.key;
+                          List<Map<String, dynamic>> notifications =
+                              entry.value;
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8.0,
-                              ),
-                              child: Text(
-                                DateFormat(
-                                  'EEEE, MMM d, yyyy',
-                                ).format(DateTime.parse(date)),
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                child: Text(
+                                  DateFormat(
+                                    'EEEE, MMM d, yyyy',
+                                  ).format(DateTime.parse(date)),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
-                            ),
-                            ...notifications.map(
-                              (notification) => NotificationCard(
-                                title: notification['title'],
-                                description: notification["message"],
-                                time: DateFormat.jm().format(
-                                  DateTime.parse(notification['created_at']),
+                              ...notifications.map(
+                                (notification) => Dismissible(
+                                  key: Key(
+                                    notification["notification_id"].toString(),
+                                  ),
+                                  onDismissed:
+                                      (direction) =>
+                                          handleDismiss(date, notification),
+                                  //   onDismissed: (direction) {
+                                  //   debugPrint(
+                                  //     "Notification ${notification['id']} dismissed to the ${direction == DismissDirection.endToStart ? 'left' : 'right'}",
+                                  //   );
+                                  // },
+                                  child: NotificationCard(
+                                    title: notification['title'],
+                                    description: notification["message"],
+                                    time: DateFormat.jm().format(
+                                      DateTime.parse(
+                                        notification['created_at'],
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                            ],
+                          );
+                        }).toList(),
+                  ),
                 ),
-              ),
+      ),
     );
   }
 }

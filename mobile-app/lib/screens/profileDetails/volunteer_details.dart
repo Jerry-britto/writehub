@@ -24,6 +24,7 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
   String? selectedCourse = 'SELECT';
   String? selectedAcademicYear = 'SELECT', selectedCollege = "SELECT";
   bool isSubmissionAttempted = false;
+  bool _isAgreed = false;
   bool _isLoading = false, _isErrorCollege = false;
   Map<String, String> result = {}, collegeIdentity = {};
 
@@ -364,7 +365,76 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isAgreed = !_isAgreed; // Toggle the checkbox value
+                          });
+                          debugPrint("tapped on guidelines");
+                        },
+                        child: Semantics(
+                          label:
+                              "Guidelines and declaration for SWD registration",
+                          value: _isAgreed ? "Agreed" : "Not agreed",
+                          hint: "Tap to agree or disagree with the declaration",
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'Terms and Conditions',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                'I hereby declare that:\n\n'
+                                                '1. All the documents submitted are accurate, authentic, and up to date.\n\n'
+                                                '2. In the event of being allotted an exam by the Admin, I shall undertake the responsibility without any objections or refusals.\n\n'
+                                                '3. I shall treat the Student with Disability (SWD) with utmost respect, empathy, and maintain professional conduct at all times.\n\n'
+                                                '4. I understand that any form of misbehavior, misconduct, or violation of guidelines may result in strict disciplinary actions as deemed appropriate by the authorities.\n',
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Checkbox(
+                                              value: _isAgreed,
+                                              onChanged: (bool? value) {
+                                                setState(() {
+                                                  _isAgreed = value ?? false;
+                                                });
+                                              },
+                                            ),
+                                            Text(
+                                              "I agree to all of the above terms and conditions",
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
 
                       // Submit button
                       Semantics(
@@ -401,6 +471,15 @@ class _VolunteerDetailsState extends State<VolunteerDetails> {
   }
 
   void _submitDetails() async {
+    if (!_isAgreed) {
+      DialogUtil.showAlertDialog(
+        context,
+        "Mandatory guidliness",
+        "Kindly agree to the terms and conditions inorder to proceed further",
+      );
+      return;
+    }
+    debugPrint("submitting scribe application");
     setState(() {
       isSubmissionAttempted = true;
       _isLoading = true;

@@ -100,60 +100,66 @@ class _AcceptedRequestsState extends State<AcceptedRequests> {
         ),
       ),
       backgroundColor: const Color(0xFFBBDEFB),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => ScribeHome()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A237E),
-                foregroundColor: Colors.white,
+      body: RefreshIndicator(
+        onRefresh: () async{
+          debugPrint("refreshed accepted request");
+          await getAcceptedRequests();
+        },
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => ScribeHome()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A237E),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("Back to Home"),
               ),
-              child: const Text("Back to Home"),
             ),
-          ),
-          Expanded(
-            child:
-                isLoading
-                    ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF1A237E),
-                      ),
-                    )
-                    : acceptedRequests.isEmpty
-                    ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          "No accepted requests found",
-                          style: TextStyle(fontSize: 16),
+            Expanded(
+              child:
+                  isLoading
+                      ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF1A237E),
+                        ),
+                      )
+                      : acceptedRequests.isEmpty
+                      ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(
+                            "No accepted requests found",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      )
+                      : SingleChildScrollView(
+                        child: Column(
+                          children:
+                              acceptedRequests.map((request) {
+                                return ExamCard(
+                                  requestId: request["request_id"],
+                                  subjectName: request["subject_name"],
+                                  examDateTime: DateTime.parse(
+                                    "${request["exam_date"]} ${request["exam_time"]}",
+                                  ),
+                                  userDetails: request["swd"],
+                                  forScribe: false,
+                                  onCancel: () => cancelRequest(request["request_id"]),
+                                );
+                              }).toList(),
                         ),
                       ),
-                    )
-                    : SingleChildScrollView(
-                      child: Column(
-                        children:
-                            acceptedRequests.map((request) {
-                              return ExamCard(
-                                requestId: request["request_id"],
-                                subjectName: request["subject_name"],
-                                examDateTime: DateTime.parse(
-                                  "${request["exam_date"]} ${request["exam_time"]}",
-                                ),
-                                userDetails: request["swd"],
-                                forScribe: false,
-                                onCancel: () => cancelRequest(request["request_id"]),
-                              );
-                            }).toList(),
-                      ),
-                    ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

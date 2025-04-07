@@ -93,184 +93,190 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Welcome back $name",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => IncomingRequests(userId: userId),
+    return RefreshIndicator(
+      onRefresh: () async{
+        debugPrint("Refreshing accepted requests");
+        await getAcceptedRequests();
+      },
+      child: Container(
+        padding: EdgeInsets.all(16),
+        child: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Welcome back $name",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => IncomingRequests(userId: userId),
+                            ),
                           ),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF9C4),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 10,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "INCOMING REQUESTS",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF9C4),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 10,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "INCOMING REQUESTS",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const AcceptedRequests(),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const AcceptedRequests(),
+                            ),
                           ),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFF9C4),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 10,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "ACCEPTED REQUESTS",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF9C4),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 20,
+                              horizontal: 10,
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "ACCEPTED REQUESTS",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  "Your Upcoming Exams",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
-                ),
-                const SizedBox(height: 16),
-                
-                // Upcoming Exams Section
-                acceptedRequests.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Text(
-                            "No upcoming exams found",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[700],
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  Text(
+                    "Your Upcoming Exams",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Upcoming Exams Section
+                  acceptedRequests.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Text(
+                              "No upcoming exams found",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[700],
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    : Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: acceptedRequests.length,
-                                itemBuilder: (context, index) {
-                                  final request = acceptedRequests[index];
-                                  DateTime examDateTime;
-                                  try {
-                                    examDateTime = DateTime.parse(
-                                      "${request["exam_date"]} ${request["exam_time"]}",
+                        )
+                      : Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: acceptedRequests.length,
+                                  itemBuilder: (context, index) {
+                                    final request = acceptedRequests[index];
+                                    DateTime examDateTime;
+                                    try {
+                                      examDateTime = DateTime.parse(
+                                        "${request["exam_date"]} ${request["exam_time"]}",
+                                      );
+                                    } catch (e) {
+                                      examDateTime = DateTime.now();
+                                      debugPrint("Error parsing date: $e");
+                                    }
+                                    
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 16),
+                                      child: ExamCard(
+                                        subjectName: request["subject_name"] ?? "Unknown Subject",
+                                        examDateTime: examDateTime,
+                                        userDetails: request["swd"] ?? {},
+                                        forScribe: false,
+                                        isDecline: false,
+                                      ),
                                     );
-                                  } catch (e) {
-                                    examDateTime = DateTime.now();
-                                    debugPrint("Error parsing date: $e");
-                                  }
-                                  
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: ExamCard(
-                                      subjectName: request["subject_name"] ?? "Unknown Subject",
-                                      examDateTime: examDateTime,
-                                      userDetails: request["swd"] ?? {},
-                                      forScribe: false,
-                                      isDecline: false,
-                                    ),
-                                  );
-                                },
-                              ),
-                            // View More Button
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const AcceptedRequests(),
+                                  },
+                                ),
+                              // View More Button
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (_) => const AcceptedRequests(),
+                        ),
                       ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF1A237E),
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF1A237E),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      "View More",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      child: const Text(
+                        "View More",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                
-              ],
-            ),
+                  
+                ],
+              ),
+      ),
     );
   }
 }

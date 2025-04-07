@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Uploadfile {
-  /// Allows selecting only one profile photo (image file).
+  /// Allows selecting only one profile photo (image/pdf file).
   /// Returns a map containing the file's path and name, or null if no file is selected.
   Future<Map<String, String>?> selectSingleFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: false, // Only one file allowed
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
       );
 
       if (result != null && result.files.isNotEmpty) {
@@ -28,7 +30,11 @@ class Uploadfile {
   /// Returns a list of maps containing file paths and names, or an empty list if no files are selected.
   Future<List<Map<String, String>>> selectMultipleFiles() async {
     try {
-      final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
 
       if (result != null && result.files.isNotEmpty) {
         return result.files.map((file) {

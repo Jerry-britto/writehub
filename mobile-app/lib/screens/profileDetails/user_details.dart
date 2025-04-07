@@ -362,22 +362,38 @@ class _UserdetailsState extends State<Userdetails> {
                                           await Uploadfile()
                                               .requestStoragePermissions();
                                           try {
+                                            // tackling edge case for no disability provided
+                                            if (selectedDisabilities.isEmpty) {
+                                              DialogUtil.showAlertDialog(context, "Missing Information", "Kindly provide the disabilites of the user before uploading the documents");
+                                              return;
+                                            }
                                             setState(() {
                                               _isLoading = true;
                                             });
                                             final certificatesResult =
                                                 await Uploadfile()
                                                     .selectMultipleFiles();
-                                            setState(() {
-                                              certificates = certificatesResult;
-                                            });
-                                            debugPrint(
-                                              "Certificates length: ${certificates.length}",
-                                            );
-                                            for (var element in certificates) {
-                                              debugPrint(
-                                                "Certificate Name - ${element["name"]}",
+                                            if (certificatesResult.length >
+                                                selectedDisabilities.length) {
+                                              DialogUtil.showAlertDialog(
+                                                context,
+                                                "Not Allowed",
+                                                "The number of certificates to be uploaded should be same as the disabilities selected for that particular student",
                                               );
+                                            } else {
+                                              setState(() {
+                                                certificates =
+                                                    certificatesResult;
+                                              });
+                                              debugPrint(
+                                                "Certificates length: ${certificates.length}",
+                                              );
+                                              for (var element
+                                                  in certificates) {
+                                                debugPrint(
+                                                  "Certificate Name - ${element["name"]}",
+                                                );
+                                              }
                                             }
                                           } catch (e) {
                                             debugPrint(
@@ -454,8 +470,18 @@ class _UserdetailsState extends State<Userdetails> {
                                           const SizedBox(height: 16),
                                           ElevatedButton(
                                             onPressed: () async {
-                                              await Uploadfile()
-                                                  .requestStoragePermissions();
+                                              // await Uploadfile()
+                                              //     .requestStoragePermissions();
+                                              // restricting the count of certifcates to be uploaded
+                                              if (certificates.length >=
+                                                  selectedDisabilities.length) {
+                                                DialogUtil.showAlertDialog(
+                                                  context,
+                                                  "Not Allowed",
+                                                  "The number of certificates to be uploaded should be same as the disabilities selected for that particular student",
+                                                );
+                                                return;
+                                              }
                                               try {
                                                 setState(() {
                                                   _isLoading = true;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import {
   Card,
@@ -127,18 +127,10 @@ const ExamBooking = () => {
     return user ? user.name : "Unknown";
   };
 
-  const rewardUser = async (scribeId: number) => {
+  const rewardUser = async (scribeId: number, newPoints: number) => {
+    console.log("reward for scribe ", scribeId);
     try {
-      // get scribe's points
-      const { data: user, error: userError } = await supabase
-        .from("scribes_points")
-        .select("points")
-        .eq("user_id", scribeId)
-        .single();
-
-      if (userError) throw Error("Could not retrieve user points");
-
-      const totalPoints = user.points;
+      const totalPoints = newPoints;
 
       // find reward category
       let rewardCategory = null;
@@ -147,14 +139,14 @@ const ExamBooking = () => {
       else if (totalPoints >= 30 && totalPoints < 40) rewardCategory = "Gold";
       else if (totalPoints >= 40 && totalPoints < 50)
         rewardCategory = "Platinum";
-      else if (totalPoints >= 50) rewardCategory = "Diamond";
+      else rewardCategory = "Diamond";
 
       if (!rewardCategory || rewardCategory === null) {
-        console.log("user not elgible to take reward")
+        console.log("user not elgible to take reward");
         return;
-      };
+      }
 
-      console.log("reward to be given ",rewardCategory);
+      console.log("reward to be given ", rewardCategory);
 
       // check whether the reward is already awared or not to the scribe
       const exisingReward = await supabase
@@ -172,7 +164,7 @@ const ExamBooking = () => {
         );
         return;
       }
-      
+
       // provide the reward to the scribe
       const { error: insertError } = await supabase
         .from("rewards")
@@ -180,12 +172,11 @@ const ExamBooking = () => {
 
       if (insertError) throw insertError;
 
-       // send notification
-       await supabase.from("notification").insert({
+      // send notification
+      await supabase.from("notification").insert({
         user_id: scribeId,
         title: "Reward unlocked",
-        message:
-          `Congragulations you have been awarded a ${rewardCategory} medal. You can meet your college staff for collecting your respective reward`,
+        message: `Congragulations you have been awarded a ${rewardCategory} medal. You can meet your college staff for collecting your respective reward`,
       });
 
       const result = await supabase
@@ -205,7 +196,6 @@ const ExamBooking = () => {
       } else {
         console.error("No FCM token found for the user.");
       }
-
     } catch (error) {
       console.log(
         "Error occured while rewarding the user due to ",
@@ -220,6 +210,8 @@ const ExamBooking = () => {
     scribeId: number | null
   ) => {
     try {
+      console.log("marking exam as completed for scribe ", scribeId);
+      let newPoints = 0;
       // Update exam status
       const { error: updateError } = await supabase
         .from("exam_requests")
@@ -242,7 +234,7 @@ const ExamBooking = () => {
         if (existingPoints && existingPoints.length > 0) {
           // Update existing points by adding 3.5
           const currentPoints = existingPoints[0].points || 0;
-          const newPoints = currentPoints + 3.5;
+          newPoints = currentPoints + 3.5;
 
           const { error: updatePointsError } = await supabase
             .from("scribes_points")
@@ -289,7 +281,7 @@ const ExamBooking = () => {
         console.error("No FCM token found for the user.");
       }
 
-      await rewardUser(scribeId)
+      await rewardUser(scribeId, newPoints);
 
       // Refresh exams
       const { data, error } = await supabase.from("exam_requests").select("*");
@@ -316,6 +308,54 @@ const ExamBooking = () => {
   // Assign scribe to exam
   const assignScribeToExam = async (examId: number, scribeId: string) => {
     try {
+      // Notify existing scribe
+      const alreadyAllotedScribe = await supabase
+        .from("exam_requests")
+        .select("scribe_id,subject_name,exam_date")
+        .eq("request_id", examId)
+        .maybeSingle();
+
+      if (alreadyAllotedScribe.error) {
+        alert("Error fetching existing scribe");
+        console.error(
+          "Error fetching existing scribe:",
+          alreadyAllotedScribe.error
+        );
+      } else if (
+        alreadyAllotedScribe.data &&
+        alreadyAllotedScribe.data.scribe_id
+      ) {
+        const alreadyAssignedScribeId = alreadyAllotedScribe.data.scribe_id;
+        const userFCMToken = await supabase
+          .from("users")
+          .select("fcm_token,name")
+          .eq("user_id", alreadyAssignedScribeId)
+          .single();
+
+        // send notification
+        await supabase.from("notification").insert({
+          user_id: alreadyAssignedScribeId,
+          title: "Exam Reassigned",
+          message: `Hi, ${userFCMToken.data.name} You were previously assigned for ${alreadyAllotedScribe.data.subject_name} paper on ${alreadyAllotedScribe.data.exam_date}, but now it is reassigned to another scribe`,
+        });
+
+        if (userFCMToken.data) {
+          await sendNotification(
+            userFCMToken.data.fcm_token,
+            "Exam Reassigned",
+            `Hi ${userFCMToken.data.name} the previously assigned exam for ${alreadyAllotedScribe.data.subject_name} paper on ${alreadyAllotedScribe.data.exam_date} has now been reassigned to another scribe`
+          );
+        } else {
+          console.error(
+            "User fcm_token could not be used to inform about reassignment"
+          );
+        }
+
+        console.log("Notification sent to previously assigned scribe.");
+      } else {
+        console.log("No scribe was previously assigned.");
+      }
+
       const scribeIdNumber = parseInt(scribeId);
 
       if (isNaN(scribeIdNumber)) {
@@ -375,18 +415,18 @@ const ExamBooking = () => {
       setIsAssigningScribe(false);
 
       // send notification
-      await supabase.from("notification").insert({
-        user_id: scribeIdNumber,
-        title: "Admin's message",
-        message:
-          "Hi you have being assigned for an exam. Please check the app for more details",
-      });
 
       const result = await supabase
         .from("users")
-        .select("fcm_token")
+        .select("fcm_token,name")
         .eq("user_id", scribeIdNumber)
         .single();
+
+      await supabase.from("notification").insert({
+        user_id: scribeIdNumber,
+        title: "Admin's message",
+        message: `Hi ${result.data.name} you have being assigned for an exam on ${alreadyAllotedScribe.data.exam_date}.Kindly check the app for more details regarding exam`,
+      });
 
       if (result.error) {
         console.error("Error fetching FCM token:", result.error);
@@ -394,7 +434,7 @@ const ExamBooking = () => {
         await sendNotification(
           result.data.fcm_token,
           "Admin's message",
-          "Hi you have being assigned for an exam. Please check the app for more details"
+          `Hi ${result.data.name} you have being assigned for an exam on ${alreadyAllotedScribe.data.exam_date}. Please check the app for more details`
         );
       } else {
         console.error("No FCM token found for the user.");
@@ -432,11 +472,11 @@ const ExamBooking = () => {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="FULFILLED">Fulfilled</SelectItem>
-                  <SelectItem value="COMPLETED">Completed</SelectItem>
-                  <SelectItem value="BACKUP NEEDED">Cancelled</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="PENDING">PENDING</SelectItem>
+                  <SelectItem value="FULFILLED">FULFILLED</SelectItem>
+                  <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                  <SelectItem value="BACKUP NEEDED">BACKUP</SelectItem>
                 </SelectContent>
               </Select>
             </div>
