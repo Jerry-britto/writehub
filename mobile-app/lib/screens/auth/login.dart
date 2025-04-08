@@ -12,6 +12,7 @@ import 'package:client/screens/profileDetails/user_details.dart';
 import 'package:client/screens/profileDetails/volunteer_details.dart';
 import 'package:client/utils/alertbox_util.dart';
 import 'package:client/utils/snackbar_util.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -151,6 +152,26 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text(
                       "Don't have an account? Sign Up",
                       style: TextStyle(fontSize: 16, color: Colors.deepPurple),
+                    ),
+                  ),
+                  TextButton.icon(
+                    icon: Icon(Icons.menu_book_outlined),
+                    label: Text('View User Manual'),
+                    onPressed: () async {
+                      const url =
+                          'https://www.notion.so/user-manual-1cef09cd743a80999857d5af9b953c85?pvs=4';
+                      final uri = Uri.parse(url);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } else {
+                        debugPrint('Could not launch $url');
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.deepPurple,
                     ),
                   ),
                 ],
