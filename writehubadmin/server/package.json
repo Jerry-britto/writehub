@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "main": "sendNotification.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node sendNotification.js"
+    "dev": "nodemon sendNotification.js"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +16,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "firebase-admin": "^13.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }

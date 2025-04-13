@@ -28,6 +28,8 @@ admin.initializeApp({
 // API endpoint to send notification
 app.post("/send-notification", async (req, res) => {
   const { token, title, body } = req.body;
+  console.log(`User's token ${token}`);
+  
 
   if (!token) {
     return res.status(400).json({ error: "FCM token is required" });
@@ -44,7 +46,7 @@ app.post("/send-notification", async (req, res) => {
     res.json({ success: true, response });
   } catch (error) {
     console.error("Error sending notification:", error);
-    res.status(500).json({ error: "Failed to send notification" });
+    res.status(500).json({ message: "Failed to send notification",cause:error.toString() });
   }
 });
 
