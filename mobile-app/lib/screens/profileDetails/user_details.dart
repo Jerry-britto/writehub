@@ -3,7 +3,7 @@ import 'package:client/components/inputs/dropdown.dart';
 import 'package:client/components/inputs/input.dart';
 import 'package:client/components/inputs/multidropdown.dart';
 import 'package:client/services/profile/profile.dart';
-import 'package:client/screens/home/swd/swd_home.dart';
+import 'package:client/screens/users/swd/swd_home.dart';
 import 'package:client/utils/alertbox_util.dart';
 import 'package:client/utils/snackbar_util.dart';
 import 'package:client/utils/uploadfile.dart';

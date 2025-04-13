@@ -1,21 +1,26 @@
-import 'package:client/screens/home/swd/bookscribe.dart';
-import 'package:client/screens/home/swd/home.dart';
-import 'package:client/screens/home/notifications.dart';
-import 'package:client/screens/home/swd/profile.dart';
+import 'package:client/screens/users/scribe/home.dart';
+import 'package:client/screens/users/notifications.dart';
+import 'package:client/screens/users/scribe/profile.dart';
+import 'package:client/screens/users/scribe/rewards.dart';
 import 'package:flutter/material.dart';
 
-class SwdHome extends StatefulWidget {
-  const SwdHome({super.key});
+class ScribeHome extends StatefulWidget {
+  const ScribeHome({super.key});
 
   @override
-  State<SwdHome> createState() => _SwdHomeState();
+  State<ScribeHome> createState() => _ScribeHomeState();
 }
 
-class _SwdHomeState extends State<SwdHome> {
+class _ScribeHomeState extends State<ScribeHome> {
   int screenIdx = 0;
   String screenTitle = "Home Screen";
 
-  List<Widget> screens = [Home(), Bookscribe(), Notifications(), SwdProfile()];
+  List<Widget> screens = [
+    Home(),
+    RewardsScreen(),
+    Notifications(),
+    ScribeProfile(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +48,10 @@ class _SwdHomeState extends State<SwdHome> {
           ),
           BottomNavigationBarItem(
             icon: Semantics(
-              label: "Book Scribe",
-              child: const Icon(Icons.border_color),
+              label: "Rewards",
+              child: const Icon(Icons.emoji_events),
             ),
-            label: "Book Scribe",
+            label: "Rewards",
           ),
           BottomNavigationBarItem(
             icon: Semantics(
@@ -72,16 +77,16 @@ class _SwdHomeState extends State<SwdHome> {
               screenIdx = value;
               switch (value) {
                 case 0:
-                  screenTitle = "Home Page";
+                  screenTitle = "Home";
                   break;
                 case 1:
-                  screenTitle = "Book Scribe";
+                  screenTitle = "Rewards";
                   break;
                 case 2:
                   screenTitle = "Notifications";
                   break;
                 case 3:
-                  screenTitle = "Your Profile";
+                  screenTitle = "Profile";
                   break;
               }
             }),

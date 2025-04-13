@@ -88,26 +88,26 @@ class NotificationCard extends StatelessWidget {
               
               // Bottom row with time and button
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   // Time with icon
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        time,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.access_time,
+                  //       size: 14,
+                  //       color: Colors.grey.shade600,
+                  //     ),
+                  //     const SizedBox(width: 4),
+                  //     Text(
+                  //       time,
+                  //       style: TextStyle(
+                  //         fontSize: 12,
+                  //         color: Colors.grey.shade600,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   
                   // View Button
                   TextButton.icon(
@@ -177,26 +177,26 @@ class NotificationCard extends StatelessWidget {
               ),
               
               // Time information
-              Padding(
-                padding: const EdgeInsets.only(left: 40, top: 4, bottom: 16),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      time,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.only(left: 40, top: 4, bottom: 16),
+              //   child: Row(
+              //     children: [
+              //       Icon(
+              //         Icons.calendar_today,
+              //         size: 14,
+              //         color: Colors.grey.shade600,
+              //       ),
+              //       const SizedBox(width: 4),
+              //       Text(
+              //         time,
+              //         style: TextStyle(
+              //           fontSize: 14,
+              //           color: Colors.grey.shade600,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               
               const Divider(),
               const SizedBox(height: 16),

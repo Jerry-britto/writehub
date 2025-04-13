@@ -1,6 +1,6 @@
 import 'package:client/components/Cards/exam_card.dart';
-import 'package:client/screens/home/scribe/accepted_requests.dart';
-import 'package:client/screens/home/scribe/incoming_requests.dart';
+import 'package:client/screens/users/scribe/accepted_requests.dart';
+import 'package:client/screens/users/scribe/incoming_requests.dart';
 import 'package:client/services/auth/auth.dart';
 import 'package:client/services/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;

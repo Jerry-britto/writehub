@@ -1,26 +1,21 @@
-import 'package:client/screens/home/scribe/home.dart';
-import 'package:client/screens/home/notifications.dart';
-import 'package:client/screens/home/scribe/profile.dart';
-import 'package:client/screens/home/scribe/rewards.dart';
+import 'package:client/screens/users/swd/bookscribe.dart';
+import 'package:client/screens/users/swd/home.dart';
+import 'package:client/screens/users/notifications.dart';
+import 'package:client/screens/users/swd/profile.dart';
 import 'package:flutter/material.dart';
 
-class ScribeHome extends StatefulWidget {
-  const ScribeHome({super.key});
+class SwdHome extends StatefulWidget {
+  const SwdHome({super.key});
 
   @override
-  State<ScribeHome> createState() => _ScribeHomeState();
+  State<SwdHome> createState() => _SwdHomeState();
 }
 
-class _ScribeHomeState extends State<ScribeHome> {
+class _SwdHomeState extends State<SwdHome> {
   int screenIdx = 0;
   String screenTitle = "Home Screen";
 
-  List<Widget> screens = [
-    Home(),
-    RewardsScreen(),
-    Notifications(),
-    ScribeProfile(),
-  ];
+  List<Widget> screens = [Home(), Bookscribe(), Notifications(), SwdProfile()];
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +43,10 @@ class _ScribeHomeState extends State<ScribeHome> {
           ),
           BottomNavigationBarItem(
             icon: Semantics(
-              label: "Rewards",
-              child: const Icon(Icons.emoji_events),
+              label: "Book Scribe",
+              child: const Icon(Icons.border_color),
             ),
-            label: "Rewards",
+            label: "Book Scribe",
           ),
           BottomNavigationBarItem(
             icon: Semantics(
@@ -77,16 +72,16 @@ class _ScribeHomeState extends State<ScribeHome> {
               screenIdx = value;
               switch (value) {
                 case 0:
-                  screenTitle = "Home";
+                  screenTitle = "Home Page";
                   break;
                 case 1:
-                  screenTitle = "Rewards";
+                  screenTitle = "Book Scribe";
                   break;
                 case 2:
                   screenTitle = "Notifications";
                   break;
                 case 3:
-                  screenTitle = "Profile";
+                  screenTitle = "Your Profile";
                   break;
               }
             }),

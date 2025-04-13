@@ -1,5 +1,5 @@
 import 'package:client/components/Cards/exam_card.dart';
-import 'package:client/screens/home/scribe/scribe_home.dart';
+import 'package:client/screens/users/scribe/scribe_home.dart';
 import 'package:client/services/auth/auth.dart';
 import 'package:client/services/scribeallotment/scribe_allotment.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
 import 'package:client/components/Cards/exam_card.dart';
-import 'package:client/screens/home/swd/acceptedrequests.dart';
-import 'package:client/screens/home/swd/pendingrequests.dart';
+import 'package:client/screens/users/swd/acceptedrequests.dart';
+import 'package:client/screens/users/swd/pendingrequests.dart';
 import 'package:client/services/auth/auth.dart';
 import 'package:client/services/profile/profile.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;

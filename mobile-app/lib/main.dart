@@ -1,7 +1,7 @@
 import 'package:client/screens/auth/auth_wrapper.dart';
 import 'package:client/screens/auth/login.dart';
-import 'package:client/screens/home/scribe/scribe_home.dart';
-import 'package:client/screens/home/swd/swd_home.dart';
+import 'package:client/screens/users/scribe/scribe_home.dart';
+import 'package:client/screens/users/swd/swd_home.dart';
 import 'package:client/services/notifications/notification_receive__service.dart';
 import 'package:client/utils/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';

@@ -1,5 +1,5 @@
 import 'package:client/components/Cards/pending_request_card.dart';
-import 'package:client/screens/home/swd/swd_home.dart';
+import 'package:client/screens/users/swd/swd_home.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

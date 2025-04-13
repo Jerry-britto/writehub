@@ -2,7 +2,7 @@ import 'package:client/components/inputs/button.dart';
 import 'package:client/components/inputs/dropdown.dart';
 import 'package:client/components/inputs/input.dart';
 import 'package:client/services/profile/profile.dart';
-import 'package:client/screens/home/scribe/scribe_home.dart';
+import 'package:client/screens/users/scribe/scribe_home.dart';
 import 'package:client/utils/alertbox_util.dart';
 import 'package:client/utils/snackbar_util.dart';
 import 'package:client/utils/uploadfile.dart';
