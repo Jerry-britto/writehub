@@ -73,7 +73,7 @@ For detailed usage instructions, visit the [WriteHub User Manual](https://www.no
 
 ---
 
-👏 Acknowledgments
+## 👏 Acknowledgments
 Thank you to Prof. Aaron Johns for supervising the project.
 
 ---
